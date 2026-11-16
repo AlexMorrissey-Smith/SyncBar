@@ -130,9 +130,10 @@ final class AppModel {
     // MARK: - Actions
 
     /// Opens the app's own menu bar panel, as if its icon had been clicked.
-    func openPanel(for account: Account) {
+    func openPanel(for account: Account) async {
         refresh()
-        if let item = menuBarItem(for: account), MenuBarItems.press(item) {
+        if let item = menuBarItem(for: account), let frame = await MenuBarItems.press(item) {
+            NSLog("SyncBar: opened \(account.app.name) panel at \(NSStringFromRect(frame))")
             setNote(nil, for: account)
             return
         }

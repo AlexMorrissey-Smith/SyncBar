@@ -9,6 +9,8 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
     private let popover = NSPopover()
     private var settingsWindow: NSWindow?
     private var shownState: CombinedState?
+    private var spinTimer: Timer?
+    private var rotation: CGFloat = 0
 
     init(model: AppModel) {
         self.model = model
@@ -37,15 +39,24 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
         let state = model.combinedState
         guard state != shownState, let button = statusItem.button else { return }
         shownState = state
-        let image = NSImage(systemSymbolName: state.symbolName, accessibilityDescription: "SyncBar")
-            ?? NSImage(systemSymbolName: "icloud", accessibilityDescription: "SyncBar")
-        image?.isTemplate = true
-        button.image = image
-        button.toolTip = switch state {
-        case .idle: "SyncBar: all accounts idle"
-        case .syncing: "SyncBar: syncing"
-        case .problem: "SyncBar: an account needs attention"
+        button.toolTip = state.tooltip
+        rotation = 0
+        button.image = MenuBarIcon.image(for: state)
+
+        // Spin the sync badge while anything is syncing.
+        spinTimer?.invalidate()
+        spinTimer = nil
+        if state == .syncing {
+            spinTimer = Timer.scheduledTimer(withTimeInterval: 1.0 / 15, repeats: true) { [weak self] _ in
+                MainActor.assumeIsolated { self?.spin() }
+            }
         }
+    }
+
+    private func spin() {
+        // One full turn every 1.6 s.
+        rotation = (rotation + 2 * .pi / 24).truncatingRemainder(dividingBy: 2 * .pi)
+        statusItem.button?.image = MenuBarIcon.image(for: .syncing, rotation: rotation)
     }
 
     @objc private func togglePopover() {
@@ -61,8 +72,9 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
     /// Closes the popover first, so the other app's panel can take focus.
     private func openPanel(for account: Account) {
         popover.performClose(nil)
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [model] in
-            model.openPanel(for: account)
+        Task { [model] in
+            try? await Task.sleep(for: .milliseconds(200))
+            await model.openPanel(for: account)
         }
     }
 

@@ -14,6 +14,7 @@
 		35B0B5BFE6C7DD5D5C2220F6 /* MenuBarItems.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA56718434CD39BE924DABC4 /* MenuBarItems.swift */; };
 		3A401031934A588551A78479 /* OneDriveInstances.swift in Sources */ = {isa = PBXBuildFile; fileRef = E85B23E26DC21AD3E4BCB013 /* OneDriveInstances.swift */; };
 		422EF0B190E796C8288017FB /* SyncBarApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8D021D2B49587BDC5B681BA /* SyncBarApp.swift */; };
+		5FF04466F47F62144C86D197 /* MenuBarIcon.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E9AB0EAD456DE527BDFAF7 /* MenuBarIcon.swift */; };
 		64CFD32B36765DD64BABD272 /* StatusTextParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27BA9A4EF38D32E8097322F7 /* StatusTextParser.swift */; };
 		6D62BB5D04AAA8619E8D4FF4 /* AppModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8A7D8CD5B99DA6BF2BB96A6 /* AppModel.swift */; };
 		85B6F0D29217C83A820EE87A /* StatusItemController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF44DE9502DA4ACFC862B803 /* StatusItemController.swift */; };
@@ -55,6 +56,7 @@
 		CDFC5D12EDFF775F9FAC6334 /* StateCombiner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StateCombiner.swift; sourceTree = "<group>"; };
 		D8D021D2B49587BDC5B681BA /* SyncBarApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncBarApp.swift; sourceTree = "<group>"; };
 		DA6D6FD24D163BB4AD99DD48 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		E2E9AB0EAD456DE527BDFAF7 /* MenuBarIcon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarIcon.swift; sourceTree = "<group>"; };
 		E85B23E26DC21AD3E4BCB013 /* OneDriveInstances.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OneDriveInstances.swift; sourceTree = "<group>"; };
 		FA56718434CD39BE924DABC4 /* MenuBarItems.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarItems.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -80,6 +82,7 @@
 		461B02E1B7D54B5CF1CD2C56 /* UI */ = {
 			isa = PBXGroup;
 			children = (
+				E2E9AB0EAD456DE527BDFAF7 /* MenuBarIcon.swift */,
 				56FB8202BDD9AC09A4C86796 /* MenuView.swift */,
 				52EEFC9321F866AE3301A5DB /* SettingsView.swift */,
 				BF44DE9502DA4ACFC862B803 /* StatusItemController.swift */,
@@ -257,6 +260,7 @@
 				6D62BB5D04AAA8619E8D4FF4 /* AppModel.swift in Sources */,
 				1621B68CBB0F223C3025A74B /* DumpRunner.swift in Sources */,
 				2A01408396A5ED162DA6A413 /* FileProviderDump.swift in Sources */,
+				5FF04466F47F62144C86D197 /* MenuBarIcon.swift in Sources */,
 				35B0B5BFE6C7DD5D5C2220F6 /* MenuBarItems.swift in Sources */,
 				E6D840FA16EF7219CA25C03D /* MenuView.swift in Sources */,
 				3A401031934A588551A78479 /* OneDriveInstances.swift in Sources */,

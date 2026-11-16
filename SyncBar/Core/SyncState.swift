@@ -30,34 +30,34 @@ enum SyncState: Equatable, Sendable {
         if case .syncing = self { return true }
         return false
     }
-
-    var isProblem: Bool {
-        switch self {
-        case .error, .needsSignIn: return true
-        default: return false
-        }
-    }
 }
 
-/// The state shown by the single SyncBar menu bar icon.
+/// The state shown by the single SyncBar menu bar icon, most urgent first.
 enum CombinedState: Equatable {
-    case idle, syncing, problem
+    case idle, paused, syncing, warning, error
 
     init(_ states: [SyncState]) {
-        if states.contains(where: \.isProblem) {
-            self = .problem
-        } else if states.contains(where: \.isSyncing) {
+        func any(_ test: (SyncState) -> Bool) -> Bool { states.contains(where: test) }
+        if any({ if case .error = $0 { true } else { false } }) {
+            self = .error
+        } else if any({ $0 == .needsSignIn || $0 == .appNotRunning }) {
+            self = .warning
+        } else if any(\.isSyncing) {
             self = .syncing
+        } else if !states.isEmpty, states.allSatisfy({ $0 == .paused }) {
+            self = .paused
         } else {
             self = .idle
         }
     }
 
-    var symbolName: String {
+    var tooltip: String {
         switch self {
-        case .idle: return "icloud"
-        case .syncing: return "arrow.trianglehead.2.clockwise.rotate.90.icloud"
-        case .problem: return "exclamationmark.icloud"
+        case .idle: "SyncBar: everything up to date"
+        case .paused: "SyncBar: syncing paused"
+        case .syncing: "SyncBar: syncing"
+        case .warning: "SyncBar: an account needs attention"
+        case .error: "SyncBar: an account has a sync error"
         }
     }
 }

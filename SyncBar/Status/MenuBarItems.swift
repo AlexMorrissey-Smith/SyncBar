@@ -49,12 +49,53 @@ enum MenuBarItems {
         return items
     }
 
-    /// Presses an item. Returns true when the app accepted the press.
-    static func press(_ item: MenuBarItem) -> Bool {
-        let result = AXUIElementPerformAction(item.element, kAXPressAction as CFString)
-        if result == .success { return true }
-        // Some items only answer "show menu".
-        return AXUIElementPerformAction(item.element, "AXShowMenu" as CFString) == .success
+    /// Presses an item and waits briefly for the app to show a menu or panel.
+    ///
+    /// The AX return code alone is unreliable: an app that shows a classic
+    /// NSMenu (Dropbox) runs the menu's tracking loop inside the press, so the
+    /// call times out with `kAXErrorCannotComplete` even though the menu is
+    /// open. Success is therefore judged by a new on-screen window owned by
+    /// the app. Returns the new window's frame, or nil if nothing appeared.
+    static func press(_ item: MenuBarItem) async -> CGRect? {
+        let before = windowNumbers(of: item.pid)
+        let element = item.element
+        // Short timeout so a blocking menu does not hold us up; run off the
+        // main thread so SyncBar stays responsive meanwhile.
+        Task.detached(priority: .userInitiated) {
+            AXUIElementSetMessagingTimeout(element, 0.5)
+            let result = AXUIElementPerformAction(element, kAXPressAction as CFString)
+            if result != .success && result != .cannotComplete {
+                // Some items only answer "show menu".
+                _ = AXUIElementPerformAction(element, "AXShowMenu" as CFString)
+            }
+        }
+        for _ in 0..<15 {
+            try? await Task.sleep(for: .milliseconds(100))
+            if let frame = newWindowFrame(of: item.pid, excluding: before) { return frame }
+        }
+        return nil
+    }
+
+    // MARK: - Window check
+
+    private static func windowList(of pid: pid_t) -> [[String: Any]] {
+        let all = CGWindowListCopyWindowInfo([.optionOnScreenOnly], kCGNullWindowID) as? [[String: Any]] ?? []
+        return all.filter { ($0[kCGWindowOwnerPID as String] as? pid_t) == pid }
+    }
+
+    private static func windowNumbers(of pid: pid_t) -> Set<Int> {
+        Set(windowList(of: pid).compactMap { $0[kCGWindowNumber as String] as? Int })
+    }
+
+    private static func newWindowFrame(of pid: pid_t, excluding before: Set<Int>) -> CGRect? {
+        for window in windowList(of: pid) {
+            guard let number = window[kCGWindowNumber as String] as? Int, !before.contains(number),
+                  let bounds = window[kCGWindowBounds as String] as? NSDictionary,
+                  let rect = CGRect(dictionaryRepresentation: bounds),
+                  rect.width > 20, rect.height > 20 else { continue }
+            return rect
+        }
+        return nil
     }
 
     // MARK: - MenuBarAgent
