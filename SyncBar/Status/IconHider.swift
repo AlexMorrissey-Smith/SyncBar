@@ -97,9 +97,42 @@ final class IconHider {
         return false
     }
 
+    /// MenuBarAgent can stop reacting to switch changes after running for a
+    /// long time (seen after a week of uptime on macOS 27.3): the setting is
+    /// stored but the icons stay. A fresh MenuBarAgent applies it at launch
+    /// and reacts live again. SyncBar checks each hide and, if the icons are
+    /// still drawn, restarts MenuBarAgent (launchd relaunches it at once).
+    private var lastAgentRestart = Date.distantPast
+    private static let agentRestartInterval: TimeInterval = 10 * 60
+
+    private func verifyHidden(_ ids: Set<String>) {
+        Task { @MainActor [weak self] in
+            try? await Task.sleep(for: .milliseconds(1500))
+            guard let self else { return }
+            let stillHidden = ids.intersection(self.hidden).subtracting(self.revealed)
+            let drawn = Set(MenuBarItems.agentItems().compactMap(\.bundleID)).intersection(stillHidden)
+            guard !drawn.isEmpty else { return }
+            guard Date().timeIntervalSince(self.lastAgentRestart) > Self.agentRestartInterval else {
+                Log.write("hiding: \(drawn.sorted()) still drawn; MenuBarAgent restarted recently, not again")
+                return
+            }
+            self.lastAgentRestart = Date()
+            Log.write("hiding: \(drawn.sorted()) still drawn after switching off; restarting MenuBarAgent")
+            Self.restartMenuBarAgent()
+        }
+    }
+
+    private static func restartMenuBarAgent() {
+        let process = Process()
+        process.executableURL = URL(filePath: "/usr/bin/killall")
+        process.arguments = ["MenuBarAgent"]
+        try? process.run()
+    }
+
     private func hide(_ ids: Set<String>) {
         do {
             try NativeIconVisibility.setAllowed(false, for: ids)
+            verifyHidden(ids)
             hidden.formUnion(ids)
             lastError = nil
             needsFullDiskAccess = false
