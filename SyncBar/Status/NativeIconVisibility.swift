@@ -26,7 +26,7 @@ enum NativeIconVisibility {
         FileManager.default.homeDirectoryForCurrentUser.path + "/Library/Group Containers/" + appID
     }
 
-    enum Failure: Error { case unreadable }
+    enum Failure: Error { case unreadable, noFullDiskAccess }
 
     /// `isAllowed` per tracked bundle ID.
     static func allowedStates() throws -> [String: Bool] {
@@ -62,11 +62,30 @@ enum NativeIconVisibility {
 
     // MARK: - Helpers
 
+    static var plistPath: String {
+        containerPath + "/Library/Preferences/" + appID + ".plist"
+    }
+
     private static func trackedList() throws -> [Any] {
         _ = _CFPreferencesAppSynchronizeWithContainer(appID as CFString, containerPath as CFString)
-        guard let value = _CFPreferencesCopyAppValueWithContainer(key as CFString, appID as CFString, containerPath as CFString)?
-                .takeRetainedValue(),
-              let data = value as? Data,
+        var data = _CFPreferencesCopyAppValueWithContainer(key as CFString, appID as CFString, containerPath as CFString)?
+            .takeRetainedValue() as? Data
+        if data == nil {
+            // cfprefsd can refuse the container to some processes; the file
+            // itself is still the source of truth.
+            do {
+                let file = try Data(contentsOf: URL(filePath: plistPath))
+                let dict = try PropertyListSerialization.propertyList(from: file, format: nil) as? [String: Any]
+                data = dict?[key] as? Data
+                Log.write("menu bar settings: container read failed, file read \(data == nil ? "has no key" : "ok")")
+            } catch CocoaError.fileReadNoPermission {
+                // The container is protected; reading it needs Full Disk Access.
+                throw Failure.noFullDiskAccess
+            } catch {
+                Log.write("menu bar settings: container and file read failed: \(error)")
+            }
+        }
+        guard let data,
               let list = try PropertyListSerialization.propertyList(from: data, format: nil) as? [Any]
         else { throw Failure.unreadable }
         return list

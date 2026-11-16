@@ -1,3 +1,4 @@
+import AppKit
 import SwiftUI
 
 /// Reorder or hide rows, and launch at login.
@@ -43,6 +44,11 @@ struct SettingsView: View {
                     .onChange(of: preferences.hideOriginalIcons) { model.refresh() }
                 if let error = model.iconHider.lastError {
                     Text(error).font(.caption).foregroundStyle(.orange)
+                    if model.iconHider.needsFullDiskAccess {
+                        Button("Open Full Disk Access Settings") {
+                            NSWorkspace.shared.open(URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_AllFiles")!)
+                        }
+                    }
                 }
             } footer: {
                 Text("SyncBar switches the shown apps off in System Settings › Menu Bar and turns each one back on for a moment when you open it. Quitting SyncBar shows them again.")

@@ -17,6 +17,12 @@ struct MenuView: View {
                     .padding(.bottom, 8)
             }
 
+            if model.isTrusted, model.iconHider.needsFullDiskAccess {
+                FullDiskAccessBanner()
+                    .padding(.horizontal, 10)
+                    .padding(.bottom, 8)
+            }
+
             if model.visibleAccounts.isEmpty {
                 Text(model.accounts.isEmpty ? "No sync accounts found" : "All accounts are hidden")
                     .foregroundStyle(.secondary)
@@ -132,6 +138,26 @@ private struct AccessibilityBanner: View {
             Button("Open Accessibility Settings") {
                 let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility")!
                 NSWorkspace.shared.open(url)
+            }
+            .controlSize(.small)
+        }
+        .padding(10)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Color.orange.opacity(0.12), in: RoundedRectangle(cornerRadius: 8))
+    }
+}
+
+private struct FullDiskAccessBanner: View {
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Label("Full Disk Access needed to hide icons", systemImage: "eye.slash.fill")
+                .font(.subheadline.weight(.semibold))
+            Text("The apps' own icons stay visible until SyncBar can change the menu bar settings.")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+            Button("Open Full Disk Access Settings") {
+                NSWorkspace.shared.open(URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_AllFiles")!)
             }
             .controlSize(.small)
         }

@@ -87,11 +87,20 @@ final class AppModel {
         onUpdate?()
     }
 
+    @ObservationIgnored private var lastHidingLog = ""
+
     private func updateHiding() {
-        guard isTrusted else { return }
         let targets = preferences.hideOriginalIcons ? Set(visibleAccounts.map(\.app.bundleID)) : []
         let present = Set(items.compactMap(\.bundleID))
-        iconHider.update(targets: targets, itemsPresent: present)
+        if isTrusted { iconHider.update(targets: targets, itemsPresent: present) }
+
+        // Log only when something changes, so the file stays small.
+        let line = "trusted=\(isTrusted) targets=\(targets.sorted()) present=\(present.sorted()) "
+            + "hidden=\(iconHider.hidden.sorted()) error=\(iconHider.lastError ?? "none")"
+        if line != lastHidingLog {
+            lastHidingLog = line
+            Log.write("hiding: " + line)
+        }
     }
 
     private func runLaunchDumps() async {

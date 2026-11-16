@@ -102,9 +102,20 @@ final class IconHider {
             try NativeIconVisibility.setAllowed(false, for: ids)
             hidden.formUnion(ids)
             lastError = nil
+            needsFullDiskAccess = false
         } catch {
-            lastError = "Can't change menu bar settings (\(error))."
+            report(error)
         }
+    }
+
+    /// True when hiding failed because SyncBar lacks Full Disk Access.
+    private(set) var needsFullDiskAccess = false
+
+    private func report(_ error: Error) {
+        needsFullDiskAccess = (error as? NativeIconVisibility.Failure) == .noFullDiskAccess
+        lastError = needsFullDiskAccess
+            ? "SyncBar needs Full Disk Access to change menu bar settings."
+            : "Can't change menu bar settings (\(error))."
     }
 
     private func show(_ ids: Set<String>) {
@@ -112,8 +123,9 @@ final class IconHider {
             try NativeIconVisibility.setAllowed(true, for: ids)
             hidden.subtract(ids)
             lastError = nil
+            needsFullDiskAccess = false
         } catch {
-            lastError = "Can't change menu bar settings (\(error))."
+            report(error)
         }
     }
 }
