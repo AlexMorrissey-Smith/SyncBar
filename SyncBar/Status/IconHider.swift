@@ -10,6 +10,9 @@ import AppKit
 /// - When a hidden app quits, switch it back on right away, so its next
 ///   launch creates an item again.
 /// - When SyncBar quits, switch everything it hid back on.
+/// - The switches outlive SyncBar. After a crash or a forced restart, apps
+///   can launch while still switched off and so have no item; SyncBar
+///   switches them on and relaunches them (see `repairMissingItems`).
 @MainActor
 final class IconHider {
     /// Bundle IDs SyncBar has switched off.
@@ -47,6 +50,73 @@ final class IconHider {
             .subtracting(revealed)
             .filter { itemsPresent.contains($0) }
         if !toHide.isEmpty { hide(toHide) }
+    }
+
+    // MARK: - Repair
+
+    /// When each app was first seen running without a menu bar item.
+    private var missingSince: [String: Date] = [:]
+    private var lastRepair: [String: Date] = [:]
+    private var repairCount: [String: Int] = [:]
+    /// How long an app must run, and miss its item, before SyncBar relaunches
+    /// it. Covers apps that are still starting and brief AX hiccups.
+    private static let repairGrace: TimeInterval = 15
+    private static let repairInterval: TimeInterval = 10 * 60
+    /// Relaunches per app per SyncBar session, so an app that never shows an
+    /// item is not relaunched over and over.
+    private static let maxRepairs = 2
+
+    /// Takes over apps whose switch is already off, so SyncBar manages (and
+    /// on quit restores) them as if it had switched them off itself.
+    func adoptSwitchedOff(among ids: Set<String>) {
+        guard let states = try? NativeIconVisibility.allowedStates() else { return }
+        let off = ids.filter { states[$0] == false }
+        guard !off.isEmpty else { return }
+        Log.write("hiding: \(off.sorted()) already switched off at launch")
+        hidden.formUnion(off)
+    }
+
+    /// An app that starts while switched off never creates its menu bar
+    /// item, so SyncBar can neither read its status nor open its panel, and
+    /// switching it on later does not bring the item back. A featured app
+    /// (which always has an item) found running without one is switched on
+    /// and relaunched; `update` hides it again once its item exists.
+    /// - Parameters:
+    ///   - apps: bundle IDs of the apps SyncBar shows accounts for.
+    ///   - itemsPresent: apps that currently have a status item.
+    func repairMissingItems(apps: Set<String>, itemsPresent: Set<String>) {
+        let now = Date()
+        for id in apps {
+            let running = NSRunningApplication.runningApplications(withBundleIdentifier: id)
+            guard !running.isEmpty, !itemsPresent.contains(id), !revealed.contains(id),
+                  SyncApp.featured.contains(id),
+                  repairCount[id, default: 0] < Self.maxRepairs
+            else {
+                missingSince[id] = nil
+                continue
+            }
+            let since = missingSince[id] ?? now
+            missingSince[id] = since
+            let started = running.compactMap(\.launchDate).max() ?? .distantPast
+            guard now.timeIntervalSince(since) >= Self.repairGrace,
+                  now.timeIntervalSince(started) >= Self.repairGrace,
+                  now.timeIntervalSince(lastRepair[id] ?? .distantPast) >= Self.repairInterval
+            else { continue }
+
+            lastRepair[id] = now
+            missingSince[id] = nil
+            repairCount[id, default: 0] += 1
+            if hidden.contains(id) {
+                show([id])
+                guard !hidden.contains(id) else { continue } // could not switch it on
+            } else {
+                // Not switched off by this SyncBar, but maybe left off by an
+                // earlier one, or by hand. It must be on for the relaunch.
+                do { try NativeIconVisibility.setAllowed(true, for: [id]) } catch { report(error); continue }
+            }
+            Log.write("repair: \(id) has no menu bar item (launched while switched off); relaunching it")
+            Task { await AppRelauncher.relaunch(running) }
+        }
     }
 
     func showAll() {
@@ -206,5 +276,27 @@ final class IconHider {
         } catch {
             report(error)
         }
+    }
+}
+
+/// Quits every process of an app and launches it again.
+enum AppRelauncher {
+    /// Quits `running` (force-quitting stragglers after 5 seconds) and
+    /// relaunches the app in the background.
+    @MainActor
+    static func relaunch(_ running: [NSRunningApplication], fallbackURL: URL? = nil) async {
+        let url = running.first?.bundleURL ?? fallbackURL
+        running.forEach { $0.terminate() }
+        let clock = ContinuousClock()
+        let deadline = clock.now + .seconds(5)
+        while running.contains(where: { !$0.isTerminated }), clock.now < deadline {
+            try? await Task.sleep(for: .milliseconds(200))
+        }
+        running.filter { !$0.isTerminated }.forEach { $0.forceTerminate() }
+        try? await Task.sleep(for: .seconds(1))
+        guard let url else { return }
+        let configuration = NSWorkspace.OpenConfiguration()
+        configuration.activates = false
+        _ = try? await NSWorkspace.shared.openApplication(at: url, configuration: configuration)
     }
 }

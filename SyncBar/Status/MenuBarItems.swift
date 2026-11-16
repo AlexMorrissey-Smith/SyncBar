@@ -56,7 +56,11 @@ enum MenuBarItems {
     /// call times out with `kAXErrorCannotComplete` even though the menu is
     /// open. Success is therefore judged by a new on-screen window owned by
     /// the app. Returns that window, or nil if nothing appeared.
-    static func press(_ item: MenuBarItem) async -> OpenedWindow? {
+    ///
+    /// A press on an app whose panel is already open closes it (the user
+    /// clicked the row again, or the panel stayed open in the background).
+    /// When a press removes a window and opens none, it is pressed again.
+    static func press(_ item: MenuBarItem, reopenIfClosed: Bool = true) async -> OpenedWindow? {
         let before = windowNumbers(of: item.pid)
         let element = item.element
         // Short timeout so a blocking menu does not hold us up; run off the
@@ -72,6 +76,10 @@ enum MenuBarItems {
         for _ in 0..<15 {
             try? await Task.sleep(for: .milliseconds(100))
             if let window = newWindow(of: item.pid, excluding: before) { return window }
+        }
+        if reopenIfClosed, !before.isSubset(of: windowNumbers(of: item.pid)) {
+            Log.write("press closed an open panel of pid \(item.pid); pressing again")
+            return await press(item, reopenIfClosed: false)
         }
         return nil
     }
@@ -107,6 +115,15 @@ enum MenuBarItems {
     /// True while the window is still on screen.
     static func isOnScreen(_ window: OpenedWindow) -> Bool {
         windowNumbers(of: window.pid).contains(window.number)
+    }
+
+    /// The window's current frame (top-left origin), or nil once it closed.
+    static func currentFrame(of window: OpenedWindow) -> CGRect? {
+        for info in windowList(of: window.pid) where info[kCGWindowNumber as String] as? Int == window.number {
+            guard let bounds = info[kCGWindowBounds as String] as? NSDictionary else { return nil }
+            return CGRect(dictionaryRepresentation: bounds)
+        }
+        return nil
     }
 
     /// Moves an app's window, found by its current frame, so its top-left

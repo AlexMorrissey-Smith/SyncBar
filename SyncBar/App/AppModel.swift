@@ -43,6 +43,7 @@ final class AppModel {
     }
 
     func start() {
+        iconHider.adoptSwitchedOff(among: SyncApp.featured)
         refresh()
         pollTimer = Timer.scheduledTimer(withTimeInterval: Self.pollInterval, repeats: true) { [weak self] _ in
             MainActor.assumeIsolated { self?.refresh() }
@@ -95,7 +96,10 @@ final class AppModel {
     private func updateHiding() {
         let targets = preferences.hideOriginalIcons ? Set(visibleAccounts.map(\.app.bundleID)) : []
         let present = Set(items.compactMap(\.bundleID))
-        if isTrusted { iconHider.update(targets: targets, itemsPresent: present) }
+        if isTrusted {
+            iconHider.update(targets: targets, itemsPresent: present)
+            iconHider.repairMissingItems(apps: Set(accounts.map(\.app.bundleID)), itemsPresent: present)
+        }
 
         // Log only when something changes, so the file stays small.
         let line = "trusted=\(isTrusted) targets=\(targets.sorted()) present=\(present.sorted()) "
@@ -164,7 +168,7 @@ final class AppModel {
             Log.write("open \(account.title) \(account.detail): pressing extras item of pid \(process.processIdentifier)")
             if let window = await MenuBarItems.press(item) {
                 Log.write("open \(account.title): opened at \(NSStringFromRect(window.frame)) without revealing")
-                placeUnderIcon(window, force: iconHider.hiddenAcrossAgentRestart.contains(account.app.bundleID))
+                await placeUnderIcon(window, force: iconHider.hiddenAcrossAgentRestart.contains(account.app.bundleID))
                 setNote(nil, for: account)
                 return
             }
@@ -202,19 +206,37 @@ final class AppModel {
     /// its panel opens off screen or in a corner. Move such a panel under
     /// SyncBar's icon; `force` moves it anyway (apps whose item is parked).
     /// Classic menus (Dropbox) cannot be moved.
-    private func placeUnderIcon(_ window: MenuBarItems.OpenedWindow, force: Bool) {
+    ///
+    /// Some apps (OneDrive) put their panel back at the parked position just
+    /// after it appears, undoing a move made too early. The window's real
+    /// frame is therefore checked after each move, and the move repeated.
+    /// Once moved again, OneDrive re-anchors the panel at its icon's real
+    /// position, which is on screen too.
+    private func placeUnderIcon(_ window: MenuBarItems.OpenedWindow, force: Bool) async {
         guard let icon = iconFrame,
               let screen = NSScreen.screens.first(where: { $0.frame.minX <= icon.midX && icon.midX <= $0.frame.maxX })
                 ?? NSScreen.main else { return }
         let width = screen.frame.width
         // Classic menus (Dropbox) report a frame above the screen; leave them.
-        let misplaced = force || window.frame.minY > icon.maxY + 40 || window.frame.minX < screen.frame.minX
-            || window.frame.maxX > screen.frame.minX + width
-        guard misplaced else { return }
+        func misplaced(_ frame: CGRect) -> Bool {
+            frame.minY > icon.maxY + 40 || frame.minX < screen.frame.minX || frame.maxX > screen.frame.minX + width
+        }
+        guard force || misplaced(window.frame) else { return }
         let x = min(max(icon.midX - window.frame.width / 2, screen.frame.minX + 8),
                     screen.frame.minX + width - window.frame.width - 8)
-        let moved = MenuBarItems.move(window, to: CGPoint(x: x, y: icon.maxY + 6))
-        Log.write("open: panel was at \(NSStringFromRect(window.frame)); moved under SyncBar icon: \(moved)")
+        var current = window
+        for attempt in 1...6 {
+            let moved = MenuBarItems.move(current, to: CGPoint(x: x, y: icon.maxY + 6))
+            try? await Task.sleep(for: .milliseconds(250))
+            guard let frame = MenuBarItems.currentFrame(of: current) else {
+                Log.write("open: panel closed while being moved")
+                return
+            }
+            current = MenuBarItems.OpenedWindow(number: current.number, pid: current.pid, frame: frame)
+            Log.write("open: move \(attempt) (\(moved)): panel now at \(NSStringFromRect(frame))")
+            if !misplaced(frame) { return }
+        }
+        Log.write("open: panel is still off screen after moving it")
     }
 
     func openFolder(for account: Account) {
@@ -231,16 +253,10 @@ final class AppModel {
     /// one app), force-quitting stragglers after 5 seconds, then launches it again.
     func restartApp(for account: Account) {
         let running = account.app.runningInstances
-        running.forEach { $0.terminate() }
         Task {
-            let clock = ContinuousClock()
-            let deadline = clock.now + .seconds(5)
-            while running.contains(where: { !$0.isTerminated }), clock.now < deadline {
-                try? await Task.sleep(for: .milliseconds(200))
-            }
-            running.filter { !$0.isTerminated }.forEach { $0.forceTerminate() }
-            try? await Task.sleep(for: .seconds(1))
-            launchApp(for: account)
+            await AppRelauncher.relaunch(running, fallbackURL: account.app.appURL)
+            try? await Task.sleep(for: .seconds(3))
+            refresh()
         }
     }
 
