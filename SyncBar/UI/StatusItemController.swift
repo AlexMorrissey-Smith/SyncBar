@@ -33,6 +33,20 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
             )
         )
 
+        // Test hook: `com.morrisseymedia.syncbar.open` with an account detail
+        // (e.g. "contoso") as the object opens that row, as a click would.
+        DistributedNotificationCenter.default().addObserver(
+            forName: Notification.Name("com.morrisseymedia.syncbar.open"), object: nil, queue: .main
+        ) { [weak self] note in
+            let query = note.object as? String ?? ""
+            MainActor.assumeIsolated {
+                guard let self, let account = self.model.visibleAccounts.first(where: {
+                    $0.detail.localizedCaseInsensitiveContains(query) || $0.title.localizedCaseInsensitiveContains(query)
+                }) else { return }
+                self.openPanel(for: account)
+            }
+        }
+
         model.onUpdate = { [weak self] in self?.updateIcon() }
         updateIcon()
     }
@@ -73,6 +87,12 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
 
     /// Closes the popover first, so the other app's panel can take focus.
     private func openPanel(for account: Account) {
+        if let button = statusItem.button, let window = button.window, let screen = window.screen ?? NSScreen.screens.first {
+            // Convert to top-left-origin screen coordinates, as AX and CGWindow use.
+            let rect = window.convertToScreen(button.convert(button.bounds, to: nil))
+            let top = NSScreen.screens.first?.frame.maxY ?? screen.frame.maxY
+            model.iconFrame = CGRect(x: rect.minX, y: top - rect.maxY, width: rect.width, height: rect.height)
+        }
         popover.performClose(nil)
         Task { [model] in
             try? await Task.sleep(for: .milliseconds(200))

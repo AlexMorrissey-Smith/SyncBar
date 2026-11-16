@@ -59,10 +59,10 @@ final class IconHider {
     /// hides the icon again once the opened panel or menu closes.
     func withRevealed(_ bundleID: String, open: () async -> MenuBarItems.OpenedWindow?) async -> MenuBarItems.OpenedWindow? {
         guard hidden.contains(bundleID) else {
-            NSLog("SyncBar: \(bundleID) not hidden, pressing directly")
+            Log.write("\(bundleID) not hidden, pressing directly")
             return await open()
         }
-        NSLog("SyncBar: revealing \(bundleID)")
+        Log.write("revealing \(bundleID)")
 
         revealed.insert(bundleID)
         show([bundleID])
@@ -70,10 +70,10 @@ final class IconHider {
         // on an undrawn item reports success and does nothing.
         try? await Task.sleep(for: .milliseconds(400))
         let drawn = await waitForAgentItem(bundleID, timeout: .milliseconds(1500))
-        NSLog("SyncBar: \(bundleID) item drawn: \(drawn)")
+        Log.write("\(bundleID) item drawn: \(drawn)")
 
         let window = await open()
-        NSLog("SyncBar: \(bundleID) opened window: \(window.map { NSStringFromRect($0.frame) } ?? "none")")
+        Log.write("\(bundleID) opened window: \(window.map { NSStringFromRect($0.frame) } ?? "none")")
         if let window {
             while MenuBarItems.isOnScreen(window) {
                 try? await Task.sleep(for: .milliseconds(300))
@@ -107,7 +107,8 @@ final class IconHider {
 
     private func verifyHidden(_ ids: Set<String>) {
         Task { @MainActor [weak self] in
-            try? await Task.sleep(for: .milliseconds(1500))
+            // Some apps (Nextcloud) take a few seconds to drop their item.
+            try? await Task.sleep(for: .seconds(4))
             guard let self else { return }
             let stillHidden = ids.intersection(self.hidden).subtracting(self.revealed)
             let drawn = Set(MenuBarItems.agentItems().compactMap(\.bundleID)).intersection(stillHidden)
@@ -118,15 +119,56 @@ final class IconHider {
             }
             self.lastAgentRestart = Date()
             Log.write("hiding: \(drawn.sorted()) still drawn after switching off; restarting MenuBarAgent")
-            Self.restartMenuBarAgent()
+            await self.restartMenuBarAgent(stuck: drawn)
         }
     }
 
-    private static func restartMenuBarAgent() {
+    /// Apps that were switched off while MenuBarAgent restarted. Some of them
+    /// (Nextcloud) lose their item until they relaunch; SyncBar does not need
+    /// it, because it opens their panels through AXExtrasMenuBar, but the app
+    /// must relaunch when SyncBar quits so its icon comes back.
+    private(set) var hiddenAcrossAgentRestart = Set<String>()
+
+    /// Restarts MenuBarAgent; launchd relaunches it at once and the new one
+    /// applies the switches on launch.
+    ///
+    /// Only the `stuck` apps stay switched off across the restart. An app
+    /// that is off while MenuBarAgent starts gets its item parked off screen,
+    /// so its panel would open in the screen's corner; the other hidden apps
+    /// are switched on for the restart and hidden live again afterwards,
+    /// which keeps their items at their real menu bar positions.
+    private func restartMenuBarAgent(stuck: Set<String>) async {
+        let others = hidden.subtracting(stuck)
+        if !others.isEmpty { show(others) }
+        try? await Task.sleep(for: .seconds(1))
+        hiddenAcrossAgentRestart.formUnion(stuck)
         let process = Process()
         process.executableURL = URL(filePath: "/usr/bin/killall")
         process.arguments = ["MenuBarAgent"]
         try? process.run()
+        // Wait for launchd to relaunch it and for the apps to re-register.
+        try? await Task.sleep(for: .seconds(4))
+        let again = others.subtracting(revealed)
+        if !again.isEmpty { hide(again) }
+    }
+
+    /// Called as SyncBar quits, after `showAll()`: relaunches apps whose item
+    /// did not come back.
+    func relaunchAppsMissingTheirItem() {
+        guard !hiddenAcrossAgentRestart.isEmpty else { return }
+        Thread.sleep(forTimeInterval: 1.5)
+        let drawn = Set(MenuBarItems.agentItems().compactMap(\.bundleID))
+        for id in hiddenAcrossAgentRestart.subtracting(drawn) {
+            let running = NSRunningApplication.runningApplications(withBundleIdentifier: id)
+            guard let url = running.first?.bundleURL else { continue }
+            Log.write("quit: \(id) has no menu bar item; relaunching it")
+            running.forEach { $0.terminate() }
+            // Relaunch from a detached shell, since SyncBar is exiting.
+            let shell = Process()
+            shell.executableURL = URL(filePath: "/bin/sh")
+            shell.arguments = ["-c", "sleep 4; /usr/bin/open \"$0\"", url.path]
+            try? shell.run()
+        }
     }
 
     private func hide(_ ids: Set<String>) {

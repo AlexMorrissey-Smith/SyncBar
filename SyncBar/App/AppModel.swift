@@ -152,6 +152,21 @@ final class AppModel {
     /// Opens the app's own menu bar panel, as if its icon had been clicked.
     func openPanel(for account: Account) async {
         refresh()
+        // First try the app's own AXExtrasMenuBar item. It still answers while
+        // the icon is switched off, and the app opens its panel under where
+        // the icon would be, so nothing has to appear in the menu bar.
+        if let process = process(for: account),
+           let item = MenuBarItems.extrasItems(for: process).first {
+            Log.write("open \(account.title) \(account.detail): pressing extras item of pid \(process.processIdentifier)")
+            if let window = await MenuBarItems.press(item) {
+                Log.write("open \(account.title): opened at \(NSStringFromRect(window.frame)) without revealing")
+                placeUnderIcon(window, force: iconHider.hiddenAcrossAgentRestart.contains(account.app.bundleID))
+                setNote(nil, for: account)
+                return
+            }
+            Log.write("open \(account.title): extras press opened nothing; revealing the icon")
+        }
+
         let window = await iconHider.withRevealed(account.app.bundleID) { [self] in
             // Re-scan: a revealed item is a fresh AX element.
             items = MenuBarItems.scan(bundleIDs: [account.app.bundleID])
@@ -159,7 +174,7 @@ final class AppModel {
             return await MenuBarItems.press(item)
         }
         if let window {
-            NSLog("SyncBar: opened \(account.app.name) panel at \(NSStringFromRect(window.frame))")
+            Log.write("opened \(account.app.name) panel at \(NSStringFromRect(window.frame))")
             setNote(nil, for: account)
             refresh()
             return
@@ -173,6 +188,29 @@ final class AppModel {
         } else {
             setNote("\(account.app.name) didn't open its menu. Try again.", for: account)
         }
+    }
+
+    /// SyncBar's own icon in screen coordinates (top-left origin), kept up to
+    /// date by the status item controller.
+    @ObservationIgnored var iconFrame: CGRect?
+
+    /// An item whose icon is switched off can report a parked position, so
+    /// its panel opens off screen or in a corner. Move such a panel under
+    /// SyncBar's icon; `force` moves it anyway (apps whose item is parked).
+    /// Classic menus (Dropbox) cannot be moved.
+    private func placeUnderIcon(_ window: MenuBarItems.OpenedWindow, force: Bool) {
+        guard let icon = iconFrame,
+              let screen = NSScreen.screens.first(where: { $0.frame.minX <= icon.midX && icon.midX <= $0.frame.maxX })
+                ?? NSScreen.main else { return }
+        let width = screen.frame.width
+        // Classic menus (Dropbox) report a frame above the screen; leave them.
+        let misplaced = force || window.frame.minY > icon.maxY + 40 || window.frame.minX < screen.frame.minX
+            || window.frame.maxX > screen.frame.minX + width
+        guard misplaced else { return }
+        let x = min(max(icon.midX - window.frame.width / 2, screen.frame.minX + 8),
+                    screen.frame.minX + width - window.frame.width - 8)
+        let moved = MenuBarItems.move(window, to: CGPoint(x: x, y: icon.maxY + 6))
+        Log.write("open: panel was at \(NSStringFromRect(window.frame)); moved under SyncBar icon: \(moved)")
     }
 
     func openFolder(for account: Account) {

@@ -109,6 +109,33 @@ enum MenuBarItems {
         windowNumbers(of: window.pid).contains(window.number)
     }
 
+    /// Moves an app's window, found by its current frame, so its top-left
+    /// corner is at `origin` (screen coordinates, top-left origin).
+    @discardableResult
+    static func move(_ window: OpenedWindow, to origin: CGPoint) -> Bool {
+        let app = AXUIElementCreateApplication(window.pid)
+        AXUIElementSetMessagingTimeout(app, 1.0)
+        for element in children(of: app, attribute: kAXWindowsAttribute) {
+            guard let frame = frame(of: element),
+                  abs(frame.minX - window.frame.minX) < 2, abs(frame.minY - window.frame.minY) < 2 else { continue }
+            var point = origin
+            guard let value = AXValueCreate(.cgPoint, &point) else { return false }
+            return AXUIElementSetAttributeValue(element, kAXPositionAttribute as CFString, value) == .success
+        }
+        return false
+    }
+
+    private static func frame(of element: AXUIElement) -> CGRect? {
+        var position: AnyObject?, size: AnyObject?
+        guard AXUIElementCopyAttributeValue(element, kAXPositionAttribute as CFString, &position) == .success,
+              AXUIElementCopyAttributeValue(element, kAXSizeAttribute as CFString, &size) == .success
+        else { return nil }
+        var point = CGPoint.zero, extent = CGSize.zero
+        AXValueGetValue(position as! AXValue, .cgPoint, &point)
+        AXValueGetValue(size as! AXValue, .cgSize, &extent)
+        return CGRect(origin: point, size: extent)
+    }
+
     // MARK: - MenuBarAgent
 
     static func agentItems() -> [MenuBarItem] {

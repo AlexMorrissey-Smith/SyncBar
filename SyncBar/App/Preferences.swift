@@ -78,7 +78,7 @@ final class Preferences {
                 do {
                     if newValue { try SMAppService.mainApp.register() } else { try SMAppService.mainApp.unregister() }
                 } catch {
-                    NSLog("SyncBar: launch at login change failed: \(error)")
+                    Log.write("launch at login change failed: \(error)")
                 }
             }
         }
