@@ -35,7 +35,11 @@ struct FileProviderSnapshot: Equatable, Sendable {
         if needsAuth == true { return .needsSignIn }
         if let errorCount, errorCount > 0 { return .error("\(errorCount) File Provider error\(errorCount == 1 ? "" : "s")") }
         if let transfer = activeTransfer { return .syncing(fraction: transfer.fraction) }
-        return isAlive ? .upToDate : .unknown
+        // File Provider launches extensions on demand, so an idle one (Dropbox)
+        // is often not alive. A clean sign-in and error report still means
+        // nothing is pending.
+        if isAlive || (needsAuth == false && errorCount == 0) { return .upToDate }
+        return .unknown
     }
 }
 

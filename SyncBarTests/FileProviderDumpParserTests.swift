@@ -61,7 +61,7 @@ private final class BundleToken {}
         #expect(FileProviderDumpParser.parse(dump).impliedState == .error("3 File Provider errors"))
     }
 
-    @Test func deadExtensionIsUnknown() {
+    @Test func idleExtensionIsUpToDate() {
         let dump = """
               needs-auth:     no
               errors:         0
@@ -70,7 +70,15 @@ private final class BundleToken {}
         """
         let snapshot = FileProviderDumpParser.parse(dump)
         #expect(!snapshot.isAlive)
-        #expect(snapshot.impliedState == .unknown)
+        #expect(snapshot.impliedState == .upToDate)
+    }
+
+    @Test func emptyDumpIsUnknown() {
+        let dump = """
+            + upload progress: <gprogress:NSProgressFileOperationKindUploading url:x>
+            + download progress: <gprogress:NSProgressFileOperationKindDownloading url:x>
+        """
+        #expect(FileProviderDumpParser.parse(dump).impliedState == .unknown)
     }
 
     @Test func completedTransfersAreNotActive() {
@@ -110,5 +118,17 @@ private final class BundleToken {}
     ])
     func mapsMenuBarText(text: String, expected: SyncState) {
         #expect(StatusTextParser.state(from: text) == expected)
+    }
+}
+
+@Suite struct AccountSubtitleTests {
+    @Test(arguments: [
+        ("cloud.example.net-Jamie-Lee", "Jamie-Lee on cloud.example.net"),
+        ("jamie@cloud.example.net", "jamie on cloud.example.net"),
+        ("Nextcloud", nil),
+    ])
+    func nextcloudSubtitle(detail: String, expected: String?) {
+        let account = Account(id: "x", app: .nextcloud, folderURL: URL(filePath: "/tmp"), detail: detail)
+        #expect(account.subtitle == expected)
     }
 }

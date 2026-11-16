@@ -10,7 +10,11 @@ struct MenuView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            Header(state: model.combinedState, accounts: model.visibleAccounts.count)
+            Header(
+                state: model.combinedState,
+                accounts: model.visibleAccounts.count,
+                upToDate: model.visibleAccounts.filter { model.statuses[$0.id]?.state == .upToDate }.count
+            )
 
             if !model.isTrusted || model.iconHider.needsFullDiskAccess {
                 SetupBanner(
@@ -70,6 +74,7 @@ struct MenuView: View {
 private struct Header: View {
     let state: CombinedState
     let accounts: Int
+    let upToDate: Int
 
     var body: some View {
         HStack(spacing: 10) {
@@ -93,7 +98,7 @@ private struct Header: View {
 
     private var title: String {
         switch state {
-        case .idle: "Everything is up to date"
+        case .idle: upToDate == accounts ? "Everything is up to date" : "\(upToDate) of \(accounts) up to date"
         case .paused: "Syncing is paused"
         case .syncing: "Syncing…"
         case .warning: "An account needs attention"

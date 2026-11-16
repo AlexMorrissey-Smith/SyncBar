@@ -75,9 +75,13 @@ final class AppModel {
             )
             statuses[account.id] = status
 
-            // Dump while syncing, or when the menu bar item gives no text
-            // (e.g. while hidden). DumpRunner limits each domain to once a minute.
-            let fastSourceMissing = status.menuBarText == nil && status.state != .appNotRunning
+            // Dump while syncing, or when the menu bar item gives no usable
+            // text (none while hidden, or only the app's name). Keying this on
+            // the text rather than the combined state keeps the snapshot fresh
+            // instead of letting it expire first. DumpRunner limits each
+            // domain to once a minute.
+            let fastState = status.menuBarText.map(StatusTextParser.state(from:)) ?? .unknown
+            let fastSourceMissing = fastState == .unknown && status.state != .appNotRunning
             if launchDumpsDone, status.state.isSyncing || fastSourceMissing, let domain = account.fileProviderDomain {
                 Task { await runDump(domain, for: account.id) }
             }

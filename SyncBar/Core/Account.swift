@@ -42,12 +42,18 @@ struct Account: Identifiable, Hashable, Sendable {
     var title: String { app.name }
 
     /// The detail as shown under the title, or nil when it would only repeat
-    /// the app name. Nextcloud's "user@server" becomes "user on server".
+    /// the app name. Nextcloud's "user@server" (classic folders) and
+    /// "server-user" (File Provider folders) become "user on server".
     var subtitle: String? {
         guard detail != app.name, !detail.isEmpty else { return nil }
         if app == .nextcloud, let at = detail.lastIndex(of: "@") {
             let user = detail[..<at], server = detail[detail.index(after: at)...]
             if !user.isEmpty, server.contains(".") { return "\(user) on \(server)" }
+        }
+        // The server ends at the first "-" after a dotted top-level domain,
+        // since user names can contain "-" too.
+        if app == .nextcloud, let m = detail.wholeMatch(of: /(.+?\.[A-Za-z]{2,})-(.+)/) {
+            return "\(m.2) on \(m.1)"
         }
         return detail
     }

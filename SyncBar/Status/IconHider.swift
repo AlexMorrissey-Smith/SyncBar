@@ -173,9 +173,13 @@ final class IconHider {
 
     private func hide(_ ids: Set<String>) {
         do {
-            try NativeIconVisibility.setAllowed(false, for: ids)
-            verifyHidden(ids)
-            hidden.formUnion(ids)
+            // Apps macOS does not track yet are skipped; leave them out of
+            // `hidden` so a later update tries again, and so verifyHidden
+            // does not restart MenuBarAgent over an app it never switched off.
+            let switchedOff = try NativeIconVisibility.setAllowed(false, for: ids)
+            guard !switchedOff.isEmpty else { return }
+            verifyHidden(switchedOff)
+            hidden.formUnion(switchedOff)
             lastError = nil
             needsFullDiskAccess = false
         } catch {
