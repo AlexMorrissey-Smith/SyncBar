@@ -1,7 +1,7 @@
 import AppKit
 import SwiftUI
 
-/// The popover: one row per visible account, then the footer.
+/// The popover: a summary header, one row per visible account, then the footer.
 struct MenuView: View {
     let model: AppModel
     let open: (Account) -> Void
@@ -9,63 +9,139 @@ struct MenuView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
+            Header(state: model.combinedState, accounts: model.visibleAccounts.count)
+
             if !model.isTrusted {
                 AccessibilityBanner()
-                Divider()
+                    .padding(.horizontal, 10)
+                    .padding(.bottom, 8)
             }
 
             if model.visibleAccounts.isEmpty {
                 Text(model.accounts.isEmpty ? "No sync accounts found" : "All accounts are hidden")
                     .foregroundStyle(.secondary)
-                    .padding(12)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 20)
             } else {
                 VStack(spacing: 2) {
                     ForEach(model.visibleAccounts) { account in
+                        let running = model.isRunning(account)
                         AccountRow(
                             account: account,
                             status: model.statuses[account.id] ?? AccountStatus(),
-                            isRunning: model.isRunning(account),
-                            open: { open(account) },
+                            isRunning: running,
+                            open: { running ? open(account) : model.launchApp(for: account) },
                             openFolder: { model.openFolder(for: account) },
                             launch: { model.launchApp(for: account) },
-                            quit: { model.quitApp(for: account) }
+                            quit: { model.quitApp(for: account) },
+                            restart: { model.restartApp(for: account) }
                         )
                     }
                 }
-                .padding(6)
+                .padding(.horizontal, 6)
+                .padding(.bottom, 6)
             }
 
-            Divider()
-            HStack {
-                Button("Settings…", action: showSettings)
+            Divider().padding(.horizontal, 12)
+
+            HStack(spacing: 2) {
+                Text("SyncBar")
+                    .font(.caption)
+                    .foregroundStyle(.tertiary)
                 Spacer()
-                Button("Quit SyncBar") { NSApp.terminate(nil) }
+                FooterButton(symbol: "gearshape", help: "Settings…", action: showSettings)
+                FooterButton(symbol: "power", help: "Quit SyncBar") { NSApp.terminate(nil) }
             }
-            .buttonStyle(.borderless)
-            .padding(.horizontal, 12)
-            .padding(.vertical, 8)
+            .padding(.leading, 14)
+            .padding(.trailing, 8)
+            .padding(.vertical, 6)
         }
-        .frame(width: 320)
+        .frame(width: 330)
+        .focusEffectDisabled()
     }
 }
+
+// MARK: - Header
+
+private struct Header: View {
+    let state: CombinedState
+    let accounts: Int
+
+    var body: some View {
+        HStack(spacing: 10) {
+            Image(systemName: symbol)
+                .font(.system(size: 15, weight: .semibold))
+                .foregroundStyle(.white)
+                .frame(width: 30, height: 30)
+                .background(tint.gradient, in: Circle())
+            VStack(alignment: .leading, spacing: 1) {
+                Text(title).font(.headline)
+                Text(accounts == 1 ? "1 account" : "\(accounts) accounts")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+            Spacer()
+        }
+        .padding(.horizontal, 14)
+        .padding(.top, 12)
+        .padding(.bottom, 8)
+    }
+
+    private var title: String {
+        switch state {
+        case .idle: "Everything is up to date"
+        case .paused: "Syncing is paused"
+        case .syncing: "Syncing…"
+        case .warning: "An account needs attention"
+        case .error: "A sync error needs attention"
+        }
+    }
+
+    private var symbol: String {
+        switch state {
+        case .idle: "checkmark"
+        case .paused: "pause.fill"
+        case .syncing: "arrow.triangle.2.circlepath"
+        case .warning: "exclamationmark"
+        case .error: "xmark"
+        }
+    }
+
+    private var tint: Color {
+        switch state {
+        case .idle: .green
+        case .paused: .gray
+        case .syncing: .blue
+        case .warning: .orange
+        case .error: .red
+        }
+    }
+}
+
+// MARK: - Accessibility banner
 
 private struct AccessibilityBanner: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
-            Label("Accessibility access needed", systemImage: "exclamationmark.triangle.fill")
-                .font(.headline)
-                .foregroundStyle(.orange)
-            Text("SyncBar reads each app's menu bar status and opens its panel through Accessibility. Turn SyncBar on in System Settings › Privacy & Security › Accessibility.")
-                .font(.callout)
+            Label("Accessibility access needed", systemImage: "hand.raised.fill")
+                .font(.subheadline.weight(.semibold))
+            Text("SyncBar reads each app's status and opens its panel through Accessibility.")
+                .font(.caption)
+                .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
             Button("Open Accessibility Settings") {
                 let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility")!
                 NSWorkspace.shared.open(url)
             }
+            .controlSize(.small)
         }
-        .padding(12)
+        .padding(10)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Color.orange.opacity(0.12), in: RoundedRectangle(cornerRadius: 8))
     }
 }
+
+// MARK: - Row
 
 private struct AccountRow: View {
     let account: Account
@@ -75,6 +151,7 @@ private struct AccountRow: View {
     let openFolder: () -> Void
     let launch: () -> Void
     let quit: () -> Void
+    let restart: () -> Void
 
     @State private var isHovered = false
 
@@ -83,63 +160,117 @@ private struct AccountRow: View {
             HStack(spacing: 10) {
                 Image(nsImage: account.app.icon)
                     .resizable()
-                    .frame(width: 28, height: 28)
-                VStack(alignment: .leading, spacing: 1) {
-                    HStack(spacing: 4) {
-                        Text(account.title).fontWeight(.medium)
-                        Text(account.detail).foregroundStyle(.secondary).lineLimit(1).truncationMode(.middle)
+                    .frame(width: 32, height: 32)
+                    .opacity(isRunning ? 1 : 0.5)
+                    .saturation(isRunning ? 1 : 0)
+
+                VStack(alignment: .leading, spacing: 2) {
+                    HStack(alignment: .firstTextBaseline) {
+                        Text(account.title)
+                            .fontWeight(.medium)
+                        Spacer(minLength: 6)
+                        StatusLabel(state: status.state)
                     }
-                    HStack(spacing: 4) {
-                        Image(systemName: symbol).foregroundStyle(tint).imageScale(.small)
-                        Text(status.state.label).foregroundStyle(.secondary)
+                    if let subtitle = account.subtitle {
+                        Text(subtitle)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .lineLimit(1)
+                            .truncationMode(.middle)
                     }
-                    .font(.callout)
                     if case .syncing(let fraction?) = status.state {
-                        ProgressView(value: fraction).controlSize(.small)
+                        ProgressView(value: fraction)
+                            .progressViewStyle(.linear)
+                            .controlSize(.small)
                     }
                     if let note = status.note {
-                        Text(note).font(.caption).foregroundStyle(.orange)
+                        Text(note)
+                            .font(.caption)
+                            .foregroundStyle(.orange)
+                            .fixedSize(horizontal: false, vertical: true)
                     }
                 }
-                Spacer(minLength: 0)
             }
             .padding(.horizontal, 8)
-            .padding(.vertical, 6)
+            .padding(.vertical, 7)
             .contentShape(Rectangle())
-            .background(isHovered ? Color.primary.opacity(0.08) : .clear, in: RoundedRectangle(cornerRadius: 6))
+            .background(
+                isHovered ? Color.primary.opacity(0.07) : .clear,
+                in: RoundedRectangle(cornerRadius: 8)
+            )
         }
         .buttonStyle(.plain)
         .onHover { isHovered = $0 }
-        .help(status.menuBarText ?? account.folderURL.path)
+        .help(isRunning ? (status.menuBarText ?? account.folderURL.path) : "Click to launch \(account.app.name)")
         .contextMenu {
-            Button("Open Folder in Finder", action: openFolder)
+            Button("Open Folder in Finder", systemImage: "folder", action: openFolder)
+            Divider()
             if isRunning {
-                Button("Quit \(account.app.name)", action: quit)
+                Button("Restart \(account.app.name)", systemImage: "arrow.clockwise", action: restart)
+                Button("Quit \(account.app.name)", systemImage: "xmark.circle", action: quit)
             } else {
-                Button("Launch \(account.app.name)", action: launch)
+                Button("Launch \(account.app.name)", systemImage: "play.circle", action: launch)
             }
         }
     }
+}
+
+/// A coloured symbol and short text for one account's state.
+private struct StatusLabel: View {
+    let state: SyncState
+
+    var body: some View {
+        HStack(spacing: 4) {
+            Image(systemName: symbol)
+            Text(state.label)
+                .lineLimit(1)
+        }
+        .font(.caption.weight(.medium))
+        .foregroundStyle(tint)
+    }
 
     private var symbol: String {
-        switch status.state {
+        switch state {
         case .upToDate: "checkmark.circle.fill"
         case .syncing: "arrow.triangle.2.circlepath"
         case .paused: "pause.circle.fill"
         case .error: "exclamationmark.triangle.fill"
         case .needsSignIn: "person.crop.circle.badge.exclamationmark"
-        case .appNotRunning: "moon.zzz.fill"
+        case .appNotRunning: "moon.zzz"
         case .unknown: "questionmark.circle"
         }
     }
 
     private var tint: Color {
-        switch status.state {
+        switch state {
         case .upToDate: .green
         case .syncing: .blue
-        case .paused: .secondary
-        case .error, .needsSignIn: .orange
-        case .appNotRunning, .unknown: .secondary
+        case .error: .red
+        case .needsSignIn: .orange
+        case .paused, .appNotRunning, .unknown: .secondary
         }
+    }
+}
+
+// MARK: - Footer
+
+private struct FooterButton: View {
+    let symbol: String
+    let help: String
+    let action: () -> Void
+    @State private var isHovered = false
+
+    var body: some View {
+        Button(action: action) {
+            Image(systemName: symbol)
+                .font(.system(size: 13, weight: .medium))
+                .frame(width: 26, height: 22)
+                .contentShape(Rectangle())
+                .background(isHovered ? Color.primary.opacity(0.08) : .clear, in: RoundedRectangle(cornerRadius: 5))
+        }
+        .buttonStyle(.plain)
+        .foregroundStyle(.secondary)
+        .onHover { isHovered = $0 }
+        .help(help)
     }
 }

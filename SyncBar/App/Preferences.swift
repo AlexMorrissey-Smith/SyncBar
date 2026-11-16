@@ -25,7 +25,7 @@ final class Preferences {
     init() {
         order = defaults.stringArray(forKey: Key.order) ?? []
         hidden = Set(defaults.stringArray(forKey: Key.hidden) ?? [])
-        hideOriginalIcons = defaults.bool(forKey: Key.hideIcons)
+        hideOriginalIcons = defaults.object(forKey: Key.hideIcons) as? Bool ?? true
     }
 
     /// Records newly found accounts. Accounts of apps SyncBar was not built

@@ -177,6 +177,23 @@ final class AppModel {
         DispatchQueue.main.asyncAfter(deadline: .now() + 3) { [weak self] in self?.refresh() }
     }
 
+    /// Quits every process of the account's app (both OneDrive accounts share
+    /// one app), force-quitting stragglers after 5 seconds, then launches it again.
+    func restartApp(for account: Account) {
+        let running = account.app.runningInstances
+        running.forEach { $0.terminate() }
+        Task {
+            let clock = ContinuousClock()
+            let deadline = clock.now + .seconds(5)
+            while running.contains(where: { !$0.isTerminated }), clock.now < deadline {
+                try? await Task.sleep(for: .milliseconds(200))
+            }
+            running.filter { !$0.isTerminated }.forEach { $0.forceTerminate() }
+            try? await Task.sleep(for: .seconds(1))
+            launchApp(for: account)
+        }
+    }
+
     func quitApp(for account: Account) {
         process(for: account)?.terminate()
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) { [weak self] in self?.refresh() }

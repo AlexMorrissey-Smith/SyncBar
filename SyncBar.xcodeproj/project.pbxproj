@@ -25,6 +25,7 @@
 		C83562C3BAA21A9CC2BCC605 /* idle-nextcloud.txt in Resources */ = {isa = PBXBuildFile; fileRef = 9A7F70D8F8CF56A111CC47D8 /* idle-nextcloud.txt */; };
 		E3C29B035578BC360A64973F /* FileProviderDumpParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26911C812C624464D71B0856 /* FileProviderDumpParserTests.swift */; };
 		E6D840FA16EF7219CA25C03D /* MenuView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56FB8202BDD9AC09A4C86796 /* MenuView.swift */; };
+		EDCB9CA2F859FBA07A16CDEE /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 27D2BDF8347A388099ED69B7 /* Assets.xcassets */; };
 		EEDCE82993F832DB099BB3FB /* AccountDiscovery.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6D45507BC8FF64EF7304781 /* AccountDiscovery.swift */; };
 		F53F21310606A31A3B4597F2 /* Preferences.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEF16E5B2717886E80389D5E /* Preferences.swift */; };
 /* End PBXBuildFile section */
@@ -45,6 +46,7 @@
 		21DAE03BA853301C8C1D49A7 /* SyncBar.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SyncBar.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		26911C812C624464D71B0856 /* FileProviderDumpParserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileProviderDumpParserTests.swift; sourceTree = "<group>"; };
 		27BA9A4EF38D32E8097322F7 /* StatusTextParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusTextParser.swift; sourceTree = "<group>"; };
+		27D2BDF8347A388099ED69B7 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		4F0535A75357D74A0CEEE9F2 /* IconHider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IconHider.swift; sourceTree = "<group>"; };
 		52EEFC9321F866AE3301A5DB /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		56FB8202BDD9AC09A4C86796 /* MenuView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuView.swift; sourceTree = "<group>"; };
@@ -140,6 +142,7 @@
 		B41B7D9C71B615F439731AC0 /* SyncBar */ = {
 			isa = PBXGroup;
 			children = (
+				27D2BDF8347A388099ED69B7 /* Assets.xcassets */,
 				DA6D6FD24D163BB4AD99DD48 /* Info.plist */,
 				FDA0743A08146D169C16203B /* App */,
 				5861CE1C644272B696F25979 /* Core */,
@@ -167,6 +170,7 @@
 			buildConfigurationList = E321FCFDC85AB88352BCC864 /* Build configuration list for PBXNativeTarget "SyncBar" */;
 			buildPhases = (
 				4EF9F1E03CB29B8B342E2B7E /* Sources */,
+				99FF15FED947B3171F29FF12 /* Resources */,
 			);
 			buildRules = (
 			);
@@ -238,6 +242,14 @@
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		99FF15FED947B3171F29FF12 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EDCB9CA2F859FBA07A16CDEE /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		EE30F480FA7249DDC600D753 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -410,6 +422,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "Developer ID Application";
 				COMBINE_HIDPI_IMAGES = YES;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = SyncBar/Info.plist;
@@ -417,6 +430,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
+				OTHER_CODE_SIGN_FLAGS = "--timestamp";
 				PRODUCT_BUNDLE_IDENTIFIER = com.morrisseymedia.syncbar;
 				SDKROOT = macosx;
 			};

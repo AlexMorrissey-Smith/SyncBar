@@ -40,4 +40,15 @@ struct Account: Identifiable, Hashable, Sendable {
     var oneDriveInstance: String?
 
     var title: String { app.name }
+
+    /// The detail as shown under the title, or nil when it would only repeat
+    /// the app name. Nextcloud's "user@server" becomes "user on server".
+    var subtitle: String? {
+        guard detail != app.name, !detail.isEmpty else { return nil }
+        if app == .nextcloud, let at = detail.lastIndex(of: "@") {
+            let user = detail[..<at], server = detail[detail.index(after: at)...]
+            if !user.isEmpty, server.contains(".") { return "\(user) on \(server)" }
+        }
+        return detail
+    }
 }

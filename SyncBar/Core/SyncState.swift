@@ -40,7 +40,7 @@ enum CombinedState: Equatable {
         func any(_ test: (SyncState) -> Bool) -> Bool { states.contains(where: test) }
         if any({ if case .error = $0 { true } else { false } }) {
             self = .error
-        } else if any({ $0 == .needsSignIn || $0 == .appNotRunning }) {
+        } else if any({ $0 == .needsSignIn }) {
             self = .warning
         } else if any(\.isSyncing) {
             self = .syncing
