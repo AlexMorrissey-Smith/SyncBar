@@ -21,6 +21,7 @@ final class AppModel {
     private(set) var statuses: [Account.ID: AccountStatus] = [:]
     private(set) var isTrusted = MenuBarItems.isTrusted
     let preferences = Preferences()
+    let iconHider = IconHider()
 
     /// Called after every refresh so the status item can update its icon.
     @ObservationIgnored var onUpdate: (() -> Void)?
@@ -75,11 +76,22 @@ final class AppModel {
             )
             statuses[account.id] = status
 
-            if launchDumpsDone, status.state.isSyncing, let domain = account.fileProviderDomain {
+            // Dump while syncing, or when the menu bar item gives no text
+            // (e.g. while hidden). DumpRunner limits each domain to once a minute.
+            let fastSourceMissing = status.menuBarText == nil && status.state != .appNotRunning
+            if launchDumpsDone, status.state.isSyncing || fastSourceMissing, let domain = account.fileProviderDomain {
                 Task { await runDump(domain, for: account.id) }
             }
         }
+        updateHiding()
         onUpdate?()
+    }
+
+    private func updateHiding() {
+        guard isTrusted else { return }
+        let targets = preferences.hideOriginalIcons ? Set(visibleAccounts.map(\.app.bundleID)) : []
+        let present = Set(items.compactMap(\.bundleID))
+        iconHider.update(targets: targets, itemsPresent: present)
     }
 
     private func runLaunchDumps() async {
@@ -132,14 +144,27 @@ final class AppModel {
     /// Opens the app's own menu bar panel, as if its icon had been clicked.
     func openPanel(for account: Account) async {
         refresh()
-        if let item = menuBarItem(for: account), let frame = await MenuBarItems.press(item) {
-            NSLog("SyncBar: opened \(account.app.name) panel at \(NSStringFromRect(frame))")
+        let window = await iconHider.withRevealed(account.app.bundleID) { [self] in
+            // Re-scan: a revealed item is a fresh AX element.
+            items = MenuBarItems.scan(bundleIDs: [account.app.bundleID])
+            guard let item = menuBarItem(for: account) else { return nil }
+            return await MenuBarItems.press(item)
+        }
+        if let window {
+            NSLog("SyncBar: opened \(account.app.name) panel at \(NSStringFromRect(window.frame))")
             setNote(nil, for: account)
+            refresh()
             return
         }
-        openFolder(for: account)
-        let reason = isTrusted ? "Couldn't open \(account.app.name)'s menu" : "No Accessibility access"
-        setNote("\(reason); opened the folder instead", for: account)
+        if !isTrusted {
+            setNote("SyncBar needs Accessibility access to open \(account.app.name)", for: account)
+        } else if !isRunning(account) {
+            setNote("\(account.app.name) isn't running. Right-click to launch it.", for: account)
+        } else if menuBarItem(for: account) == nil {
+            setNote("\(account.app.name) has no menu bar icon. Right-click to quit it, then launch it again.", for: account)
+        } else {
+            setNote("\(account.app.name) didn't open its menu. Try again.", for: account)
+        }
     }
 
     func openFolder(for account: Account) {

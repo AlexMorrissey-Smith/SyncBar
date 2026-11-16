@@ -55,8 +55,8 @@ enum MenuBarItems {
     /// NSMenu (Dropbox) runs the menu's tracking loop inside the press, so the
     /// call times out with `kAXErrorCannotComplete` even though the menu is
     /// open. Success is therefore judged by a new on-screen window owned by
-    /// the app. Returns the new window's frame, or nil if nothing appeared.
-    static func press(_ item: MenuBarItem) async -> CGRect? {
+    /// the app. Returns that window, or nil if nothing appeared.
+    static func press(_ item: MenuBarItem) async -> OpenedWindow? {
         let before = windowNumbers(of: item.pid)
         let element = item.element
         // Short timeout so a blocking menu does not hold us up; run off the
@@ -71,7 +71,7 @@ enum MenuBarItems {
         }
         for _ in 0..<15 {
             try? await Task.sleep(for: .milliseconds(100))
-            if let frame = newWindowFrame(of: item.pid, excluding: before) { return frame }
+            if let window = newWindow(of: item.pid, excluding: before) { return window }
         }
         return nil
     }
@@ -87,15 +87,26 @@ enum MenuBarItems {
         Set(windowList(of: pid).compactMap { $0[kCGWindowNumber as String] as? Int })
     }
 
-    private static func newWindowFrame(of pid: pid_t, excluding before: Set<Int>) -> CGRect? {
+    struct OpenedWindow: Sendable {
+        let number: Int
+        let pid: pid_t
+        let frame: CGRect
+    }
+
+    private static func newWindow(of pid: pid_t, excluding before: Set<Int>) -> OpenedWindow? {
         for window in windowList(of: pid) {
             guard let number = window[kCGWindowNumber as String] as? Int, !before.contains(number),
                   let bounds = window[kCGWindowBounds as String] as? NSDictionary,
                   let rect = CGRect(dictionaryRepresentation: bounds),
                   rect.width > 20, rect.height > 20 else { continue }
-            return rect
+            return OpenedWindow(number: number, pid: pid, frame: rect)
         }
         return nil
+    }
+
+    /// True while the window is still on screen.
+    static func isOnScreen(_ window: OpenedWindow) -> Bool {
+        windowNumbers(of: window.pid).contains(window.number)
     }
 
     // MARK: - MenuBarAgent

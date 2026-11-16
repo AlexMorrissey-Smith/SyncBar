@@ -39,6 +39,17 @@ struct SettingsView: View {
             }
 
             Section {
+                Toggle("Hide the apps' own menu bar icons", isOn: $preferences.hideOriginalIcons)
+                    .onChange(of: preferences.hideOriginalIcons) { model.refresh() }
+                if let error = model.iconHider.lastError {
+                    Text(error).font(.caption).foregroundStyle(.orange)
+                }
+            } footer: {
+                Text("SyncBar switches the shown apps off in System Settings › Menu Bar and turns each one back on for a moment when you open it. Quitting SyncBar shows them again.")
+                    .font(.caption).foregroundStyle(.secondary)
+            }
+
+            Section {
                 Toggle("Launch at login", isOn: $preferences.launchAtLogin)
                 if preferences.loginItemNeedsApproval {
                     Text("Approve SyncBar in System Settings › General › Login Items.")
@@ -47,6 +58,6 @@ struct SettingsView: View {
             }
         }
         .formStyle(.grouped)
-        .frame(width: 420, height: 440)
+        .frame(width: 440, height: 560)
     }
 }

@@ -22,4 +22,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         statusController = StatusItemController(model: model)
         model.start()
     }
+
+    func applicationWillTerminate(_ notification: Notification) {
+        // Never leave the apps' icons switched off without SyncBar running.
+        model.iconHider.showAll()
+    }
 }

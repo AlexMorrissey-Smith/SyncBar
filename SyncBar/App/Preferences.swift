@@ -10,15 +10,22 @@ final class Preferences {
         static let order = "accountOrder"
         static let hidden = "hiddenAccounts"
         static let known = "knownAccounts"
+        static let hideIcons = "hideOriginalIcons"
     }
 
     private let defaults = UserDefaults.standard
     private(set) var order: [String]
     private(set) var hidden: Set<String>
 
+    /// Hide the sync apps' own menu bar icons.
+    var hideOriginalIcons: Bool {
+        didSet { defaults.set(hideOriginalIcons, forKey: Key.hideIcons) }
+    }
+
     init() {
         order = defaults.stringArray(forKey: Key.order) ?? []
         hidden = Set(defaults.stringArray(forKey: Key.hidden) ?? [])
+        hideOriginalIcons = defaults.bool(forKey: Key.hideIcons)
     }
 
     /// Records newly found accounts. Accounts of apps SyncBar was not built
