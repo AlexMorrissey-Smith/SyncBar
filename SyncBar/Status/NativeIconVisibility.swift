@@ -15,16 +15,18 @@ import Foundation
 /// SyncBar therefore only hides apps that are already running with an item,
 /// and switches everything back on when it quits.
 enum NativeIconVisibility {
-    /// The group container's preferences, addressed by absolute path. Asking
-    /// for the plain suite name only works inside the app group, which
-    /// SyncBar isn't part of.
-    static var domain: CFString {
-        let home = FileManager.default.homeDirectoryForCurrentUser.path
-        return "\(home)/Library/Group Containers/group.com.apple.controlcenter/Library/Preferences/group.com.apple.controlcenter" as CFString
-    }
-    static var key: CFString { "trackedApplications" as CFString }
+    static let appID = "group.com.apple.controlcenter"
+    static let key = "trackedApplications"
 
-    enum Failure: Error { case unreadable, notTracked }
+    /// Control Center's group container. Preferences must be read and written
+    /// with this container so cfprefsd tells MenuBarAgent about the change;
+    /// the plain suite name only resolves inside the app group, and writing
+    /// by file path changes the file without notifying anyone.
+    static var containerPath: String {
+        FileManager.default.homeDirectoryForCurrentUser.path + "/Library/Group Containers/" + appID
+    }
+
+    enum Failure: Error { case unreadable }
 
     /// `isAllowed` per tracked bundle ID.
     static func allowedStates() throws -> [String: Bool] {
@@ -37,33 +39,34 @@ enum NativeIconVisibility {
         return result
     }
 
-    /// Sets `isAllowed` for the given apps. Apps macOS has not seen yet are skipped.
+    /// Sets `isAllowed` for the given apps and returns the ones found.
+    /// Apps macOS has not seen yet are skipped. Always writes, so observers
+    /// are told even when the stored value already matched.
     @discardableResult
     static func setAllowed(_ allowed: Bool, for bundleIDs: Set<String>) throws -> Set<String> {
         var list = try trackedList()
-        var changed = Set<String>()
+        var found = Set<String>()
         for index in stride(from: 0, to: list.count - 1, by: 2) {
             guard let id = bundleID(of: list[index]), bundleIDs.contains(id),
                   var value = list[index + 1] as? [String: Any] else { continue }
-            if value["isAllowed"] as? Bool != allowed {
-                value["isAllowed"] = allowed
-                list[index + 1] = value
-                changed.insert(id)
-            }
+            value["isAllowed"] = allowed
+            list[index + 1] = value
+            found.insert(id)
         }
-        guard !changed.isEmpty else { return [] }
+        guard !found.isEmpty else { return [] }
         let data = try PropertyListSerialization.data(fromPropertyList: list, format: .binary, options: 0)
-        CFPreferencesSetAppValue(key, data as CFData, domain)
-        // Writing through cfprefsd (not the file) lets MenuBarAgent see the change.
-        CFPreferencesAppSynchronize(domain)
-        return changed
+        _CFPreferencesSetAppValueWithContainer(key as CFString, data as CFData, appID as CFString, containerPath as CFString)
+        _ = _CFPreferencesAppSynchronizeWithContainer(appID as CFString, containerPath as CFString)
+        return found
     }
 
     // MARK: - Helpers
 
     private static func trackedList() throws -> [Any] {
-        CFPreferencesAppSynchronize(domain)
-        guard let data = CFPreferencesCopyAppValue(key, domain) as? Data,
+        _ = _CFPreferencesAppSynchronizeWithContainer(appID as CFString, containerPath as CFString)
+        guard let value = _CFPreferencesCopyAppValueWithContainer(key as CFString, appID as CFString, containerPath as CFString)?
+                .takeRetainedValue(),
+              let data = value as? Data,
               let list = try PropertyListSerialization.propertyList(from: data, format: nil) as? [Any]
         else { throw Failure.unreadable }
         return list
@@ -73,3 +76,19 @@ enum NativeIconVisibility {
         ((key as? [String: Any])?["bundle"] as? [String: Any])?["_0"] as? String
     }
 }
+
+// Private CoreFoundation functions (CFPreferences.c) for preferences that
+// live in another app's group container.
+
+@_silgen_name("_CFPreferencesCopyAppValueWithContainer")
+private func _CFPreferencesCopyAppValueWithContainer(
+    _ key: CFString, _ appName: CFString, _ containerPath: CFString
+) -> Unmanaged<CFPropertyList>?
+
+@_silgen_name("_CFPreferencesSetAppValueWithContainer")
+private func _CFPreferencesSetAppValueWithContainer(
+    _ key: CFString, _ value: CFPropertyList?, _ appName: CFString, _ containerPath: CFString
+)
+
+@_silgen_name("_CFPreferencesAppSynchronizeWithContainer")
+private func _CFPreferencesAppSynchronizeWithContainer(_ appName: CFString, _ containerPath: CFString) -> Bool

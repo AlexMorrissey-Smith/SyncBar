@@ -58,16 +58,22 @@ final class IconHider {
     /// Shows an app's icon, waits for its item to be drawn, runs `open`, and
     /// hides the icon again once the opened panel or menu closes.
     func withRevealed(_ bundleID: String, open: () async -> MenuBarItems.OpenedWindow?) async -> MenuBarItems.OpenedWindow? {
-        guard hidden.contains(bundleID) else { return await open() }
+        guard hidden.contains(bundleID) else {
+            NSLog("SyncBar: \(bundleID) not hidden, pressing directly")
+            return await open()
+        }
+        NSLog("SyncBar: revealing \(bundleID)")
 
         revealed.insert(bundleID)
         show([bundleID])
         // Give MenuBarAgent time to draw the item before pressing it; a press
         // on an undrawn item reports success and does nothing.
         try? await Task.sleep(for: .milliseconds(400))
-        await waitForAgentItem(bundleID, timeout: .milliseconds(1500))
+        let drawn = await waitForAgentItem(bundleID, timeout: .milliseconds(1500))
+        NSLog("SyncBar: \(bundleID) item drawn: \(drawn)")
 
         let window = await open()
+        NSLog("SyncBar: \(bundleID) opened window: \(window.map { NSStringFromRect($0.frame) } ?? "none")")
         if let window {
             while MenuBarItems.isOnScreen(window) {
                 try? await Task.sleep(for: .milliseconds(300))
@@ -80,13 +86,15 @@ final class IconHider {
 
     // MARK: - Private
 
-    private func waitForAgentItem(_ bundleID: String, timeout: Duration) async {
+    @discardableResult
+    private func waitForAgentItem(_ bundleID: String, timeout: Duration) async -> Bool {
         let clock = ContinuousClock()
         let deadline = clock.now + timeout
         while clock.now < deadline {
-            if MenuBarItems.agentItems().contains(where: { $0.bundleID == bundleID }) { return }
+            if MenuBarItems.agentItems().contains(where: { $0.bundleID == bundleID }) { return true }
             try? await Task.sleep(for: .milliseconds(100))
         }
+        return false
     }
 
     private func hide(_ ids: Set<String>) {
