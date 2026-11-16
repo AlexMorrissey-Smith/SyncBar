@@ -24,6 +24,8 @@ targets:
       path: SyncBar/Info.plist
       properties:
         LSUIElement: true
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         CFBundleDisplayName: SyncBar
         NSHumanReadableCopyright: "Copyright © 2026. MIT License."
         LSApplicationCategoryType: public.app-category.utilities
