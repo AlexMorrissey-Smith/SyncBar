@@ -6,21 +6,19 @@ struct MenuView: View {
     let model: AppModel
     let open: (Account) -> Void
     let showSettings: () -> Void
+    let showSetup: () -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             Header(state: model.combinedState, accounts: model.visibleAccounts.count)
 
-            if !model.isTrusted {
-                AccessibilityBanner()
-                    .padding(.horizontal, 10)
-                    .padding(.bottom, 8)
-            }
-
-            if model.isTrusted, model.iconHider.needsFullDiskAccess {
-                FullDiskAccessBanner()
-                    .padding(.horizontal, 10)
-                    .padding(.bottom, 8)
+            if !model.isTrusted || model.iconHider.needsFullDiskAccess {
+                SetupBanner(
+                    title: model.isTrusted ? "Permission needed to hide icons" : "Permission needed",
+                    action: showSetup
+                )
+                .padding(.horizontal, 10)
+                .padding(.bottom, 8)
             }
 
             if model.visibleAccounts.isEmpty {
@@ -124,45 +122,20 @@ private struct Header: View {
     }
 }
 
-// MARK: - Accessibility banner
+// MARK: - Setup banner
 
-private struct AccessibilityBanner: View {
+private struct SetupBanner: View {
+    let title: String
+    let action: () -> Void
+
     var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            Label("Accessibility access needed", systemImage: "hand.raised.fill")
-                .font(.subheadline.weight(.semibold))
-            Text("SyncBar reads each app's status and opens its panel through Accessibility.")
-                .font(.caption)
-                .foregroundStyle(.secondary)
-                .fixedSize(horizontal: false, vertical: true)
-            Button("Open Accessibility Settings") {
-                let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility")!
-                NSWorkspace.shared.open(url)
-            }
-            .controlSize(.small)
+        HStack(spacing: 10) {
+            Image(systemName: "hand.raised.fill").foregroundStyle(.orange)
+            Text(title).font(.subheadline.weight(.semibold))
+            Spacer()
+            Button("Set Up…", action: action).controlSize(.small)
         }
         .padding(10)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color.orange.opacity(0.12), in: RoundedRectangle(cornerRadius: 8))
-    }
-}
-
-private struct FullDiskAccessBanner: View {
-    var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            Label("Full Disk Access needed to hide icons", systemImage: "eye.slash.fill")
-                .font(.subheadline.weight(.semibold))
-            Text("The apps' own icons stay visible until SyncBar can change the menu bar settings.")
-                .font(.caption)
-                .foregroundStyle(.secondary)
-                .fixedSize(horizontal: false, vertical: true)
-            Button("Open Full Disk Access Settings") {
-                NSWorkspace.shared.open(URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_AllFiles")!)
-            }
-            .controlSize(.small)
-        }
-        .padding(10)
-        .frame(maxWidth: .infinity, alignment: .leading)
         .background(Color.orange.opacity(0.12), in: RoundedRectangle(cornerRadius: 8))
     }
 }

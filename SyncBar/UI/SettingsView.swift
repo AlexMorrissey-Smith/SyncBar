@@ -46,7 +46,7 @@ struct SettingsView: View {
                     Text(error).font(.caption).foregroundStyle(.orange)
                     if model.iconHider.needsFullDiskAccess {
                         Button("Open Full Disk Access Settings") {
-                            NSWorkspace.shared.open(URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_AllFiles")!)
+                            Permissions.requestFullDiskAccess()
                         }
                     }
                 }

@@ -16,12 +16,14 @@
 		2A01408396A5ED162DA6A413 /* FileProviderDump.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19068111964E19ADE570175A /* FileProviderDump.swift */; };
 		35B0B5BFE6C7DD5D5C2220F6 /* MenuBarItems.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA56718434CD39BE924DABC4 /* MenuBarItems.swift */; };
 		3A401031934A588551A78479 /* OneDriveInstances.swift in Sources */ = {isa = PBXBuildFile; fileRef = E85B23E26DC21AD3E4BCB013 /* OneDriveInstances.swift */; };
+		3AE54CB3452537D89DB41A6B /* Permissions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 993B05864D17B4F39A4E393B /* Permissions.swift */; };
 		422EF0B190E796C8288017FB /* SyncBarApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8D021D2B49587BDC5B681BA /* SyncBarApp.swift */; };
 		5FF04466F47F62144C86D197 /* MenuBarIcon.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E9AB0EAD456DE527BDFAF7 /* MenuBarIcon.swift */; };
 		64CFD32B36765DD64BABD272 /* StatusTextParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27BA9A4EF38D32E8097322F7 /* StatusTextParser.swift */; };
 		6D62BB5D04AAA8619E8D4FF4 /* AppModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8A7D8CD5B99DA6BF2BB96A6 /* AppModel.swift */; };
 		71BD1E91BD9976AEE3B90679 /* Log.swift in Sources */ = {isa = PBXBuildFile; fileRef = 806B261DD0026C2C05873F09 /* Log.swift */; };
 		85B6F0D29217C83A820EE87A /* StatusItemController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF44DE9502DA4ACFC862B803 /* StatusItemController.swift */; };
+		8B9780704973D0872B367B63 /* SetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFE0888C9E54DF730CEC0AF4 /* SetupView.swift */; };
 		A6E4399116AC9872E1651748 /* Account.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8A4D25E7B7ED7CF6260C6C6 /* Account.swift */; };
 		B5FEA37AC2D83CBC1B9AD51B /* SyncState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13E85BD7A9186E67B5E7B4FF /* SyncState.swift */; };
 		C83562C3BAA21A9CC2BCC605 /* idle-nextcloud.txt in Resources */ = {isa = PBXBuildFile; fileRef = 9A7F70D8F8CF56A111CC47D8 /* idle-nextcloud.txt */; };
@@ -52,6 +54,7 @@
 		52EEFC9321F866AE3301A5DB /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		56FB8202BDD9AC09A4C86796 /* MenuView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuView.swift; sourceTree = "<group>"; };
 		806B261DD0026C2C05873F09 /* Log.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Log.swift; sourceTree = "<group>"; };
+		993B05864D17B4F39A4E393B /* Permissions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Permissions.swift; sourceTree = "<group>"; };
 		9A7F70D8F8CF56A111CC47D8 /* idle-nextcloud.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = "idle-nextcloud.txt"; sourceTree = "<group>"; };
 		A8A4D25E7B7ED7CF6260C6C6 /* Account.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Account.swift; sourceTree = "<group>"; };
 		AEF16E5B2717886E80389D5E /* Preferences.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Preferences.swift; sourceTree = "<group>"; };
@@ -67,6 +70,7 @@
 		E2E9AB0EAD456DE527BDFAF7 /* MenuBarIcon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarIcon.swift; sourceTree = "<group>"; };
 		E85B23E26DC21AD3E4BCB013 /* OneDriveInstances.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OneDriveInstances.swift; sourceTree = "<group>"; };
 		FA56718434CD39BE924DABC4 /* MenuBarItems.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarItems.swift; sourceTree = "<group>"; };
+		FFE0888C9E54DF730CEC0AF4 /* SetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetupView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -93,6 +97,7 @@
 				E2E9AB0EAD456DE527BDFAF7 /* MenuBarIcon.swift */,
 				56FB8202BDD9AC09A4C86796 /* MenuView.swift */,
 				52EEFC9321F866AE3301A5DB /* SettingsView.swift */,
+				FFE0888C9E54DF730CEC0AF4 /* SetupView.swift */,
 				BF44DE9502DA4ACFC862B803 /* StatusItemController.swift */,
 			);
 			path = UI;
@@ -138,6 +143,7 @@
 				4F0535A75357D74A0CEEE9F2 /* IconHider.swift */,
 				FA56718434CD39BE924DABC4 /* MenuBarItems.swift */,
 				CBE3C4F92AAB117D4896F33C /* NativeIconVisibility.swift */,
+				993B05864D17B4F39A4E393B /* Permissions.swift */,
 			);
 			path = Status;
 			sourceTree = "<group>";
@@ -288,8 +294,10 @@
 				E6D840FA16EF7219CA25C03D /* MenuView.swift in Sources */,
 				26F7FC73560C88661F66C4B7 /* NativeIconVisibility.swift in Sources */,
 				3A401031934A588551A78479 /* OneDriveInstances.swift in Sources */,
+				3AE54CB3452537D89DB41A6B /* Permissions.swift in Sources */,
 				F53F21310606A31A3B4597F2 /* Preferences.swift in Sources */,
 				0782F4F647FBDBAF1429FF7A /* SettingsView.swift in Sources */,
+				8B9780704973D0872B367B63 /* SetupView.swift in Sources */,
 				0E7DD5FE9818623E6E845355 /* StateCombiner.swift in Sources */,
 				85B6F0D29217C83A820EE87A /* StatusItemController.swift in Sources */,
 				64CFD32B36765DD64BABD272 /* StatusTextParser.swift in Sources */,

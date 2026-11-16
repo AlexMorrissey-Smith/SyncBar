@@ -43,7 +43,6 @@ final class AppModel {
     }
 
     func start() {
-        if !isTrusted { MenuBarItems.promptForTrust() }
         refresh()
         pollTimer = Timer.scheduledTimer(withTimeInterval: Self.pollInterval, repeats: true) { [weak self] _ in
             MainActor.assumeIsolated { self?.refresh() }

@@ -21,6 +21,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         guard ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] == nil else { return }
         statusController = StatusItemController(model: model)
         model.start()
+        if statusController?.needsSetup == true { statusController?.showSetup() }
     }
 
     func applicationWillTerminate(_ notification: Notification) {

@@ -8,6 +8,7 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
     private let statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
     private let popover = NSPopover()
     private var settingsWindow: NSWindow?
+    private var setupWindow: NSWindow?
     private var shownState: CombinedState?
     private var spinTimer: Timer?
     private var rotation: CGFloat = 0
@@ -27,7 +28,8 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
             rootView: MenuView(
                 model: model,
                 open: { [weak self] account in self?.openPanel(for: account) },
-                showSettings: { [weak self] in self?.showSettings() }
+                showSettings: { [weak self] in self?.showSettings() },
+                showSetup: { [weak self] in self?.showSetup() }
             )
         )
 
@@ -76,6 +78,30 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
             try? await Task.sleep(for: .milliseconds(200))
             await model.openPanel(for: account)
         }
+    }
+
+    /// True when a permission SyncBar needs is missing.
+    var needsSetup: Bool {
+        !Permissions.hasAccessibility || (model.preferences.hideOriginalIcons && !Permissions.hasFullDiskAccess)
+    }
+
+    func showSetup() {
+        popover.performClose(nil)
+        if setupWindow == nil {
+            let view = SetupView(needsFullDiskAccess: model.preferences.hideOriginalIcons) { [weak self] in
+                self?.setupWindow?.close()
+                self?.setupWindow = nil
+                self?.model.refresh()
+            }
+            let window = NSWindow(contentViewController: NSHostingController(rootView: view))
+            window.title = "SyncBar"
+            window.styleMask = [.titled, .closable]
+            window.isReleasedWhenClosed = false
+            window.center()
+            setupWindow = window
+        }
+        NSApp.activate()
+        setupWindow?.makeKeyAndOrderFront(nil)
     }
 
     private func showSettings() {
