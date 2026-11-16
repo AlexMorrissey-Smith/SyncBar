@@ -3,8 +3,8 @@ import Foundation
 /// Reads and writes macOS 27's per-app "Allow in the Menu Bar" switches
 /// (System Settings › Menu Bar › Menu Bar Controls).
 ///
-/// They live in the `trackedApplications` key of the
-/// `group.com.apple.controlcenter` preferences: a binary property list
+/// They live in the `trackedApplications` key of Control Center's group
+/// container preferences: a binary property list
 /// holding an array of alternating keys and values, where each key is
 /// `{bundle: {_0: <bundle ID>}}` and each value carries `isAllowed`.
 ///
@@ -15,7 +15,13 @@ import Foundation
 /// SyncBar therefore only hides apps that are already running with an item,
 /// and switches everything back on when it quits.
 enum NativeIconVisibility {
-    static var domain: CFString { "group.com.apple.controlcenter" as CFString }
+    /// The group container's preferences, addressed by absolute path. Asking
+    /// for the plain suite name only works inside the app group, which
+    /// SyncBar isn't part of.
+    static var domain: CFString {
+        let home = FileManager.default.homeDirectoryForCurrentUser.path
+        return "\(home)/Library/Group Containers/group.com.apple.controlcenter/Library/Preferences/group.com.apple.controlcenter" as CFString
+    }
     static var key: CFString { "trackedApplications" as CFString }
 
     enum Failure: Error { case unreadable, notTracked }
