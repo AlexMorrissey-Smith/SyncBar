@@ -62,6 +62,7 @@ enum MenuBarItems {
     /// When a press removes a window and opens none, it is pressed again.
     static func press(_ item: MenuBarItem, reopenIfClosed: Bool = true) async -> OpenedWindow? {
         let before = windowNumbers(of: item.pid)
+        let frontBefore = frontWindow()?.number
         let element = item.element
         // Short timeout so a blocking menu does not hold us up; run off the
         // main thread so SyncBar stays responsive meanwhile.
@@ -76,6 +77,9 @@ enum MenuBarItems {
         for _ in 0..<15 {
             try? await Task.sleep(for: .milliseconds(100))
             if let window = newWindow(of: item.pid, excluding: before) { return window }
+            // Apps with a window already open (Google Drive's sign-in window)
+            // bring it to the front instead of opening a new one.
+            if let front = frontWindow(), front.pid == item.pid, front.number != frontBefore { return front }
         }
         if reopenIfClosed, !before.isSubset(of: windowNumbers(of: item.pid)) {
             Log.write("press closed an open panel of pid \(item.pid); pressing again")
@@ -99,6 +103,21 @@ enum MenuBarItems {
         let number: Int
         let pid: pid_t
         let frame: CGRect
+    }
+
+    /// The frontmost normal (layer 0) on-screen window of any app.
+    private static func frontWindow() -> OpenedWindow? {
+        let all = CGWindowListCopyWindowInfo([.optionOnScreenOnly, .excludeDesktopElements], kCGNullWindowID)
+            as? [[String: Any]] ?? []
+        for info in all where (info[kCGWindowLayer as String] as? Int) == 0 {
+            guard let number = info[kCGWindowNumber as String] as? Int,
+                  let pid = info[kCGWindowOwnerPID as String] as? pid_t,
+                  let bounds = info[kCGWindowBounds as String] as? NSDictionary,
+                  let rect = CGRect(dictionaryRepresentation: bounds),
+                  rect.width > 20, rect.height > 20 else { continue }
+            return OpenedWindow(number: number, pid: pid, frame: rect)
+        }
+        return nil
     }
 
     private static func newWindow(of pid: pid_t, excluding before: Set<Int>) -> OpenedWindow? {

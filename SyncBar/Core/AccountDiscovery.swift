@@ -57,6 +57,7 @@ enum AccountDiscovery {
         case "com.microsoft.OneDrive.FileProvider": return .oneDrive
         case "com.getdropbox.dropbox.fileprovider": return .dropbox
         case "com.nextcloud.desktopclient.FileProviderExt": return .nextcloud
+        case "com.google.drivefs.fpext": return .googleDrive
         default:
             // Extensions are normally "<app bundle ID>.<suffix>". Walk up until
             // an installed app matches.
@@ -73,10 +74,15 @@ enum AccountDiscovery {
         }
     }
 
-    /// "OneDrive-Contoso(2)" -> "Contoso", "Dropbox" -> "Dropbox".
+    /// "OneDrive-Contoso(2)" -> "Contoso", "Dropbox" -> "Dropbox",
+    /// "GoogleDrive-jamie@example.com" -> "jamie@example.com".
     static func detail(forFolder name: String, app: SyncApp) -> String {
         var rest = name
-        if rest.hasPrefix(app.name + "-") { rest.removeFirst(app.name.count + 1) }
+        for prefix in [app.name + "-", app.name.replacingOccurrences(of: " ", with: "") + "-"]
+        where rest.hasPrefix(prefix) {
+            rest.removeFirst(prefix.count)
+            break
+        }
         rest = rest.replacing(/\(\d+\)$/, with: "")
         return rest.isEmpty ? name : rest
     }

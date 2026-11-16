@@ -6,7 +6,8 @@
 
 **One menu bar icon for every cloud sync account on your Mac.**
 
-OneDrive, Dropbox and Nextcloud each want a menu bar icon of their own.
+OneDrive, Dropbox, Nextcloud and Google Drive each want a menu bar icon of
+their own.
 SyncBar folds them into one, shows how every account is doing, and opens
 each app's own panel when you need it.
 
@@ -30,7 +31,8 @@ each app's own panel when you need it.
   Up to date, Syncing (with progress), Paused, Error, Needs sign-in or App
   not running. Two OneDrive accounts show up as two rows.
 - **The apps' own panels, one click away.** Click a row and that app opens
-  its usual menu or panel, right under SyncBar's icon.
+  its usual menu or panel, right under SyncBar's icon. Google Drive opens
+  its Drive window, as it does from its own icon.
 - **A tidy menu bar.** SyncBar can switch off the sync apps' own icons
   using macOS's built-in Menu Bar settings, and switches them back on when
   it quits.
@@ -41,9 +43,9 @@ each app's own panel when you need it.
   connections.
 
 Works with **OneDrive** (personal and business, several accounts),
-**Dropbox** and **Nextcloud** (File Provider and classic folder sync).
-Other File Provider apps, such as Google Drive, are found too and can be
-shown from Settings.
+**Dropbox**, **Nextcloud** (File Provider and classic folder sync) and
+**Google Drive**. Other File Provider apps are found too and can be shown
+from Settings.
 
 ## Install
 
@@ -69,7 +71,7 @@ Settings.
 ## Requirements
 
 - macOS 27.2 or later (built and tested on 27.3)
-- At least one of OneDrive, Dropbox or Nextcloud
+- At least one of OneDrive, Dropbox, Nextcloud or Google Drive
 
 ## How it works
 
@@ -131,8 +133,11 @@ SyncBar:
   an app that starts while switched off never creates one;
 - switches an app back on when it quits, and every app back on when
   SyncBar quits;
-- restarts `MenuBarAgent` if it stops applying the switches, which happens
-  after long uptimes;
+- adds the installed app's `bundle` location to its entry when the entry
+  was first recorded for another copy of the app (for example a local
+  build); without it, macOS ignores the switch;
+- leaves an app's icon shown if it is still drawn after being switched
+  off;
 - relaunches an app that started while still switched off, for example
   after a forced restart, so its item comes back.
 

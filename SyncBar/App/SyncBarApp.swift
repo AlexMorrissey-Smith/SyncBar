@@ -27,6 +27,5 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationWillTerminate(_ notification: Notification) {
         // Never leave the apps' icons switched off without SyncBar running.
         model.iconHider.showAll()
-        model.iconHider.relaunchAppsMissingTheirItem()
     }
 }

@@ -66,8 +66,8 @@ actor DumpRunner {
         try? reader.close()
         process.waitUntilExit()
 
-        // A dump that never reached the sync engine header (timeout, unknown
-        // domain) tells us nothing reliable.
-        return parser.isComplete ? parser.snapshot : nil
+        // A dump that never reached the sync engine header tells us nothing
+        // reliable, unless it showed the domain is not registered at all.
+        return parser.finish()
     }
 }

@@ -11,6 +11,7 @@ final class Preferences {
         static let hidden = "hiddenAccounts"
         static let known = "knownAccounts"
         static let hideIcons = "hideOriginalIcons"
+        static let googleDriveShown = "googleDriveShown"
     }
 
     private let defaults = UserDefaults.standard
@@ -31,6 +32,12 @@ final class Preferences {
     /// Records newly found accounts. Accounts of apps SyncBar was not built
     /// for (e.g. Google Drive) start hidden.
     func register(_ accounts: [Account]) {
+        // Google Drive accounts were hidden by default before SyncBar
+        // supported Google Drive; show them once.
+        if !defaults.bool(forKey: Key.googleDriveShown) {
+            hidden.subtract(accounts.filter { $0.app == .googleDrive }.map(\.id))
+            defaults.set(true, forKey: Key.googleDriveShown)
+        }
         var known = Set(defaults.stringArray(forKey: Key.known) ?? [])
         for account in accounts where !known.contains(account.id) {
             known.insert(account.id)

@@ -8,10 +8,11 @@ struct SyncApp: Hashable, Sendable {
     static let oneDrive = SyncApp(bundleID: "com.microsoft.OneDrive", name: "OneDrive")
     static let dropbox = SyncApp(bundleID: "com.getdropbox.dropbox", name: "Dropbox")
     static let nextcloud = SyncApp(bundleID: "com.nextcloud.desktopclient", name: "Nextcloud")
+    static let googleDrive = SyncApp(bundleID: "com.google.drivefs", name: "Google Drive")
 
     /// Apps whose accounts are shown by default. Other File Provider apps are
     /// listed too, but start hidden.
-    static let featured: Set<String> = [oneDrive.bundleID, dropbox.bundleID, nextcloud.bundleID]
+    static let featured: Set<String> = [oneDrive.bundleID, dropbox.bundleID, nextcloud.bundleID, googleDrive.bundleID]
 
     var appURL: URL? { NSWorkspace.shared.urlForApplication(withBundleIdentifier: bundleID) }
 

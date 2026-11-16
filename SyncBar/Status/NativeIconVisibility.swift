@@ -12,6 +12,8 @@ import Foundation
 /// - An app that *starts* while switched off never creates its status item,
 ///   so it cannot be opened until it is relaunched with the switch on.
 /// - An app switched off while running keeps its item alive but hidden.
+/// - A switch is applied only to items whose location is in the entry's
+///   `menuItemLocations` (see `addBundleLocation`).
 /// SyncBar therefore only hides apps that are already running with an item,
 /// and switches everything back on when it quits.
 enum NativeIconVisibility {
@@ -50,6 +52,7 @@ enum NativeIconVisibility {
             guard let id = bundleID(of: list[index]), bundleIDs.contains(id),
                   var value = list[index + 1] as? [String: Any] else { continue }
             value["isAllowed"] = allowed
+            addBundleLocation(id, to: &value)
             list[index + 1] = value
             found.insert(id)
         }
@@ -89,6 +92,22 @@ enum NativeIconVisibility {
               let list = try PropertyListSerialization.propertyList(from: data, format: nil) as? [Any]
         else { throw Failure.unreadable }
         return list
+    }
+
+    /// MenuBarAgent applies a switch only to items whose location is listed
+    /// in `menuItemLocations`. An entry first recorded for another copy of
+    /// the app (for example a locally built one, stored as `adhocBinary`)
+    /// lacks the installed app's `bundle` location, and switching it off
+    /// then leaves the icon drawn. Seen with Nextcloud.
+    private static func addBundleLocation(_ id: String, to value: inout [String: Any]) {
+        var locations = value["menuItemLocations"] as? [Any] ?? []
+        let hasBundle = locations.contains { location in
+            ((location as? [String: Any])?["bundle"] as? [String: Any])?["_0"] as? String == id
+        }
+        guard !hasBundle else { return }
+        locations.insert(["bundle": ["_0": id]], at: 0)
+        value["menuItemLocations"] = locations
+        Log.write("menu bar settings: added the bundle location to \(id)'s entry")
     }
 
     private static func bundleID(of key: Any) -> String? {

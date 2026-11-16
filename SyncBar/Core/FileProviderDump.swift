@@ -14,6 +14,10 @@ struct TransferProgress: Equatable, Sendable {
 
 /// The parts of a `fileproviderctl dump <provider>/<domain>` that SyncBar uses.
 struct FileProviderSnapshot: Equatable, Sendable {
+    /// False when the dump lists no such domain: the app has removed it,
+    /// which happens when the account is signed out (Google Drive keeps its
+    /// CloudStorage folder meanwhile).
+    var isRegistered = true
     var isAlive = false
     var needsAuth: Bool?
     var errorCount: Int?
@@ -32,7 +36,7 @@ struct FileProviderSnapshot: Equatable, Sendable {
 
     /// The state this snapshot implies on its own.
     var impliedState: SyncState {
-        if needsAuth == true { return .needsSignIn }
+        if !isRegistered || needsAuth == true { return .needsSignIn }
         if let errorCount, errorCount > 0 { return .error("\(errorCount) File Provider error\(errorCount == 1 ? "" : "s")") }
         if let transfer = activeTransfer { return .syncing(fraction: transfer.fraction) }
         // File Provider launches extensions on demand, so an idle one (Dropbox)
@@ -56,6 +60,8 @@ struct FileProviderDumpParser {
     private(set) var isComplete = false
     private var sawUpload = false
     private var sawDownload = false
+    private var sawProviderList = false
+    private var sawDomain = false
 
     init() {}
 
@@ -66,12 +72,23 @@ struct FileProviderDumpParser {
             parser.consume(String(line))
             if parser.isComplete { break }
         }
-        return parser.snapshot
+        return parser.finish() ?? parser.snapshot
+    }
+
+    /// The result once the output has ended: the snapshot if the header was
+    /// complete, an unregistered snapshot if the dump listed no domain at
+    /// all, otherwise nil (timeout or unreadable output).
+    func finish() -> FileProviderSnapshot? {
+        if isComplete { return snapshot }
+        if sawProviderList && !sawDomain { return FileProviderSnapshot(isRegistered: false) }
+        return nil
     }
 
     mutating func consume(_ rawLine: String) {
         guard !isComplete else { return }
         let line = Self.stripANSI(rawLine)
+        if line.contains("providers, filtered by") { sawProviderList = true }
+        if line.hasPrefix("domain:") { sawDomain = true }
 
         if line.contains("upload progress:") {
             sawUpload = true

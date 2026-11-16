@@ -22,7 +22,7 @@ enum StateCombiner {
 
         // The File Provider framework knows about a lost sign-in even when the
         // app's tooltip has not caught up.
-        if snapshot.needsAuth == true { return .needsSignIn }
+        if !snapshot.isRegistered || snapshot.needsAuth == true { return .needsSignIn }
 
         switch fast {
         case .syncing(let textFraction):

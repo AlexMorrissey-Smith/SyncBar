@@ -73,6 +73,25 @@ private final class BundleToken {}
         #expect(snapshot.impliedState == .upToDate)
     }
 
+    @Test func missingDomainNeedsSignIn() {
+        let dump = """
+        6 providers, filtered by 'com.google.drivefs.fpext/g{26}6'
+        + stale spotlight domains: none
+        == action operation engine ==
+        0 operations
+        """
+        var parser = FileProviderDumpParser()
+        dump.split(separator: "\n").forEach { parser.consume(String($0)) }
+        #expect(parser.finish()?.impliedState == .needsSignIn)
+    }
+
+    @Test func truncatedDumpIsNil() {
+        var parser = FileProviderDumpParser()
+        parser.consume("6 providers, filtered by 'x/y'")
+        parser.consume("domain: y (z)")
+        #expect(parser.finish() == nil)
+    }
+
     @Test func emptyDumpIsUnknown() {
         let dump = """
             + upload progress: <gprogress:NSProgressFileOperationKindUploading url:x>
@@ -130,5 +149,12 @@ private final class BundleToken {}
     func nextcloudSubtitle(detail: String, expected: String?) {
         let account = Account(id: "x", app: .nextcloud, folderURL: URL(filePath: "/tmp"), detail: detail)
         #expect(account.subtitle == expected)
+    }
+}
+
+@Suite struct AccountDiscoveryTests {
+    @Test func googleDriveFolderDetail() {
+        #expect(AccountDiscovery.detail(forFolder: "GoogleDrive-jamie@example.com", app: .googleDrive) == "jamie@example.com")
+        #expect(AccountDiscovery.app(forProvider: "com.google.drivefs.fpext") == .googleDrive)
     }
 }

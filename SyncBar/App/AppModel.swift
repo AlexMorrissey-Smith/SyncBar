@@ -43,7 +43,7 @@ final class AppModel {
     }
 
     func start() {
-        iconHider.adoptSwitchedOff(among: SyncApp.featured)
+        iconHider.switchOnLeftovers(among: SyncApp.featured)
         refresh()
         pollTimer = Timer.scheduledTimer(withTimeInterval: Self.pollInterval, repeats: true) { [weak self] _ in
             MainActor.assumeIsolated { self?.refresh() }
@@ -168,7 +168,7 @@ final class AppModel {
             Log.write("open \(account.title) \(account.detail): pressing extras item of pid \(process.processIdentifier)")
             if let window = await MenuBarItems.press(item) {
                 Log.write("open \(account.title): opened at \(NSStringFromRect(window.frame)) without revealing")
-                await placeUnderIcon(window, force: iconHider.hiddenAcrossAgentRestart.contains(account.app.bundleID))
+                await placeUnderIcon(window, force: false)
                 setNote(nil, for: account)
                 return
             }
@@ -177,9 +177,14 @@ final class AppModel {
 
         let window = await iconHider.withRevealed(account.app.bundleID) { [self] in
             // Re-scan: a revealed item is a fresh AX element.
-            items = MenuBarItems.scan(bundleIDs: [account.app.bundleID])
-            guard let item = menuBarItem(for: account) else { return nil }
-            return await MenuBarItems.press(item)
+            // A freshly drawn item can ignore the first press, so try twice.
+            for attempt in 1...2 {
+                items = MenuBarItems.scan(bundleIDs: [account.app.bundleID])
+                if let item = menuBarItem(for: account), let window = await MenuBarItems.press(item) { return window }
+                Log.write("open \(account.title): revealed press \(attempt) opened nothing")
+                try? await Task.sleep(for: .milliseconds(700))
+            }
+            return nil
         }
         if let window {
             Log.write("opened \(account.app.name) panel at \(NSStringFromRect(window.frame))")
@@ -217,9 +222,16 @@ final class AppModel {
               let screen = NSScreen.screens.first(where: { $0.frame.minX <= icon.midX && icon.midX <= $0.frame.maxX })
                 ?? NSScreen.main else { return }
         let width = screen.frame.width
-        // Classic menus (Dropbox) report a frame above the screen; leave them.
+        // Only a panel that is off every screen is moved (OneDrive parks it
+        // at the bottom left); app windows and classic menus (Dropbox, which
+        // reports a frame just above the screen) stay where they are.
+        let top = NSScreen.screens.first?.frame.maxY ?? screen.frame.maxY
+        let screens = NSScreen.screens.map {
+            CGRect(x: $0.frame.minX, y: top - $0.frame.maxY, width: $0.frame.width, height: $0.frame.height)
+        }
         func misplaced(_ frame: CGRect) -> Bool {
-            frame.minY > icon.maxY + 40 || frame.minX < screen.frame.minX || frame.maxX > screen.frame.minX + width
+            let visible = frame.insetBy(dx: 0, dy: max(0, frame.height / 2 - 20))
+            return !screens.contains { $0.intersects(visible) }
         }
         guard force || misplaced(window.frame) else { return }
         let x = min(max(icon.midX - window.frame.width / 2, screen.frame.minX + 8),

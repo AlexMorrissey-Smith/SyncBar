@@ -48,6 +48,7 @@ final class IconHider {
         let toHide = targets
             .subtracting(hidden)
             .subtracting(revealed)
+            .subtracting(cannotHide)
             .filter { itemsPresent.contains($0) }
         if !toHide.isEmpty { hide(toHide) }
     }
@@ -66,21 +67,27 @@ final class IconHider {
     /// item is not relaunched over and over.
     private static let maxRepairs = 2
 
-    /// Takes over apps whose switch is already off, so SyncBar manages (and
-    /// on quit restores) them as if it had switched them off itself.
-    func adoptSwitchedOff(among ids: Set<String>) {
+    /// Switches on apps found switched off at launch, e.g. left off by a
+    /// SyncBar that did not quit cleanly. An app hidden live cannot be told
+    /// apart from one that launched while switched off (neither shows up in
+    /// the accessibility tree), so every app starts switched on: one with an
+    /// item is hidden again by `update`, one without is relaunched by
+    /// `repairMissingItems`.
+    func switchOnLeftovers(among ids: Set<String>) {
         guard let states = try? NativeIconVisibility.allowedStates() else { return }
         let off = ids.filter { states[$0] == false }
         guard !off.isEmpty else { return }
-        Log.write("hiding: \(off.sorted()) already switched off at launch")
-        hidden.formUnion(off)
+        Log.write("hiding: \(off.sorted()) were switched off at launch; switching them on")
+        do { try NativeIconVisibility.setAllowed(true, for: off) } catch { report(error) }
     }
 
     /// An app that starts while switched off never creates its menu bar
     /// item, so SyncBar can neither read its status nor open its panel, and
     /// switching it on later does not bring the item back. A featured app
-    /// (which always has an item) found running without one is switched on
-    /// and relaunched; `update` hides it again once its item exists.
+    /// (which always has an item) that is switched on but runs without one
+    /// is relaunched; `update` hides it again once its item exists. Apps
+    /// SyncBar has hidden are left out: a hidden item is invisible to the
+    /// accessibility API, so it always looks missing.
     /// - Parameters:
     ///   - apps: bundle IDs of the apps SyncBar shows accounts for.
     ///   - itemsPresent: apps that currently have a status item.
@@ -89,7 +96,7 @@ final class IconHider {
         for id in apps {
             let running = NSRunningApplication.runningApplications(withBundleIdentifier: id)
             guard !running.isEmpty, !itemsPresent.contains(id), !revealed.contains(id),
-                  SyncApp.featured.contains(id),
+                  SyncApp.featured.contains(id), !hidden.contains(id),
                   repairCount[id, default: 0] < Self.maxRepairs
             else {
                 missingSince[id] = nil
@@ -106,15 +113,10 @@ final class IconHider {
             lastRepair[id] = now
             missingSince[id] = nil
             repairCount[id, default: 0] += 1
-            if hidden.contains(id) {
-                show([id])
-                guard !hidden.contains(id) else { continue } // could not switch it on
-            } else {
-                // Not switched off by this SyncBar, but maybe left off by an
-                // earlier one, or by hand. It must be on for the relaunch.
-                do { try NativeIconVisibility.setAllowed(true, for: [id]) } catch { report(error); continue }
-            }
-            Log.write("repair: \(id) has no menu bar item (launched while switched off); relaunching it")
+            // Make sure it is switched on (it may have been switched off by
+            // hand), so the relaunched app creates its item.
+            do { try NativeIconVisibility.setAllowed(true, for: [id]) } catch { report(error); continue }
+            Log.write("repair: \(id) has no menu bar item (launched while switched off?); relaunching it")
             Task { await AppRelauncher.relaunch(running) }
         }
     }
@@ -167,77 +169,23 @@ final class IconHider {
         return false
     }
 
-    /// MenuBarAgent can stop reacting to switch changes after running for a
-    /// long time (seen after a week of uptime on macOS 27.3): the setting is
-    /// stored but the icons stay. A fresh MenuBarAgent applies it at launch
-    /// and reacts live again. SyncBar checks each hide and, if the icons are
-    /// still drawn, restarts MenuBarAgent (launchd relaunches it at once).
-    private var lastAgentRestart = Date.distantPast
-    private static let agentRestartInterval: TimeInterval = 10 * 60
+    /// Apps that stay drawn after being switched off, for example when
+    /// MenuBarAgent stops applying switches after a long uptime. SyncBar switches such apps back on and leaves their icons alone
+    /// for the rest of the session. (Restarting MenuBarAgent to force the
+    /// change was tried, but it could drop every app's menu bar item.)
+    private(set) var cannotHide = Set<String>()
 
     private func verifyHidden(_ ids: Set<String>) {
         Task { @MainActor [weak self] in
-            // Some apps (Nextcloud) take a few seconds to drop their item.
+            // Some apps take a few seconds to drop their item.
             try? await Task.sleep(for: .seconds(4))
             guard let self else { return }
             let stillHidden = ids.intersection(self.hidden).subtracting(self.revealed)
             let drawn = Set(MenuBarItems.agentItems().compactMap(\.bundleID)).intersection(stillHidden)
             guard !drawn.isEmpty else { return }
-            guard Date().timeIntervalSince(self.lastAgentRestart) > Self.agentRestartInterval else {
-                Log.write("hiding: \(drawn.sorted()) still drawn; MenuBarAgent restarted recently, not again")
-                return
-            }
-            self.lastAgentRestart = Date()
-            Log.write("hiding: \(drawn.sorted()) still drawn after switching off; restarting MenuBarAgent")
-            await self.restartMenuBarAgent(stuck: drawn)
-        }
-    }
-
-    /// Apps that were switched off while MenuBarAgent restarted. Some of them
-    /// (Nextcloud) lose their item until they relaunch; SyncBar does not need
-    /// it, because it opens their panels through AXExtrasMenuBar, but the app
-    /// must relaunch when SyncBar quits so its icon comes back.
-    private(set) var hiddenAcrossAgentRestart = Set<String>()
-
-    /// Restarts MenuBarAgent; launchd relaunches it at once and the new one
-    /// applies the switches on launch.
-    ///
-    /// Only the `stuck` apps stay switched off across the restart. An app
-    /// that is off while MenuBarAgent starts gets its item parked off screen,
-    /// so its panel would open in the screen's corner; the other hidden apps
-    /// are switched on for the restart and hidden live again afterwards,
-    /// which keeps their items at their real menu bar positions.
-    private func restartMenuBarAgent(stuck: Set<String>) async {
-        let others = hidden.subtracting(stuck)
-        if !others.isEmpty { show(others) }
-        try? await Task.sleep(for: .seconds(1))
-        hiddenAcrossAgentRestart.formUnion(stuck)
-        let process = Process()
-        process.executableURL = URL(filePath: "/usr/bin/killall")
-        process.arguments = ["MenuBarAgent"]
-        try? process.run()
-        // Wait for launchd to relaunch it and for the apps to re-register.
-        try? await Task.sleep(for: .seconds(4))
-        let again = others.subtracting(revealed)
-        if !again.isEmpty { hide(again) }
-    }
-
-    /// Called as SyncBar quits, after `showAll()`: relaunches apps whose item
-    /// did not come back.
-    func relaunchAppsMissingTheirItem() {
-        guard !hiddenAcrossAgentRestart.isEmpty else { return }
-        Thread.sleep(forTimeInterval: 1.5)
-        let drawn = Set(MenuBarItems.agentItems().compactMap(\.bundleID))
-        for id in hiddenAcrossAgentRestart.subtracting(drawn) {
-            let running = NSRunningApplication.runningApplications(withBundleIdentifier: id)
-            guard let url = running.first?.bundleURL else { continue }
-            Log.write("quit: \(id) has no menu bar item; relaunching it")
-            running.forEach { $0.terminate() }
-            // Relaunch from a detached shell, since SyncBar is exiting.
-            let shell = Process()
-            shell.executableURL = URL(filePath: "/bin/sh")
-            shell.arguments = ["-c", "sleep 4; /usr/bin/open \"$0\"", url.path]
-            try? shell.run()
+            Log.write("hiding: \(drawn.sorted()) still drawn after switching off; leaving them shown")
+            self.cannotHide.formUnion(drawn)
+            self.show(drawn)
         }
     }
 
