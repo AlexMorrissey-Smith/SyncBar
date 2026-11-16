@@ -51,7 +51,7 @@ struct SettingsView: View {
                     }
                 }
             } footer: {
-                Text("SyncBar switches the shown apps off in System Settings › Menu Bar and turns each one back on for a moment when you open it. Quitting SyncBar shows them again.")
+                Text("SyncBar switches the shown apps off in System Settings › Menu Bar and still opens their panels. Quitting SyncBar shows them again.")
                     .font(.caption).foregroundStyle(.secondary)
             }
 
