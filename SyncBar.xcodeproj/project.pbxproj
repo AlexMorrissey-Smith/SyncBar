@@ -1,0 +1,516 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		0782F4F647FBDBAF1429FF7A /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52EEFC9321F866AE3301A5DB /* SettingsView.swift */; };
+		0E7DD5FE9818623E6E845355 /* StateCombiner.swift in Sources */ = {isa = PBXBuildFile; fileRef = CDFC5D12EDFF775F9FAC6334 /* StateCombiner.swift */; };
+		1621B68CBB0F223C3025A74B /* DumpRunner.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8C6741663170B08AAC2E97F /* DumpRunner.swift */; };
+		2A01408396A5ED162DA6A413 /* FileProviderDump.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19068111964E19ADE570175A /* FileProviderDump.swift */; };
+		35B0B5BFE6C7DD5D5C2220F6 /* MenuBarItems.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA56718434CD39BE924DABC4 /* MenuBarItems.swift */; };
+		3A401031934A588551A78479 /* OneDriveInstances.swift in Sources */ = {isa = PBXBuildFile; fileRef = E85B23E26DC21AD3E4BCB013 /* OneDriveInstances.swift */; };
+		422EF0B190E796C8288017FB /* SyncBarApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8D021D2B49587BDC5B681BA /* SyncBarApp.swift */; };
+		64CFD32B36765DD64BABD272 /* StatusTextParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27BA9A4EF38D32E8097322F7 /* StatusTextParser.swift */; };
+		6D62BB5D04AAA8619E8D4FF4 /* AppModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8A7D8CD5B99DA6BF2BB96A6 /* AppModel.swift */; };
+		85B6F0D29217C83A820EE87A /* StatusItemController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF44DE9502DA4ACFC862B803 /* StatusItemController.swift */; };
+		A6E4399116AC9872E1651748 /* Account.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8A4D25E7B7ED7CF6260C6C6 /* Account.swift */; };
+		B5FEA37AC2D83CBC1B9AD51B /* SyncState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13E85BD7A9186E67B5E7B4FF /* SyncState.swift */; };
+		C83562C3BAA21A9CC2BCC605 /* idle-nextcloud.txt in Resources */ = {isa = PBXBuildFile; fileRef = 9A7F70D8F8CF56A111CC47D8 /* idle-nextcloud.txt */; };
+		E3C29B035578BC360A64973F /* FileProviderDumpParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26911C812C624464D71B0856 /* FileProviderDumpParserTests.swift */; };
+		E6D840FA16EF7219CA25C03D /* MenuView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56FB8202BDD9AC09A4C86796 /* MenuView.swift */; };
+		EEDCE82993F832DB099BB3FB /* AccountDiscovery.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6D45507BC8FF64EF7304781 /* AccountDiscovery.swift */; };
+		F53F21310606A31A3B4597F2 /* Preferences.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEF16E5B2717886E80389D5E /* Preferences.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		83DE9CCFF4F9BA6BF42CE202 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = F6B0015529074DF29F12918E /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 04919D39F5C90B60C332D8FF;
+			remoteInfo = SyncBar;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		13E85BD7A9186E67B5E7B4FF /* SyncState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncState.swift; sourceTree = "<group>"; };
+		19068111964E19ADE570175A /* FileProviderDump.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileProviderDump.swift; sourceTree = "<group>"; };
+		21DAE03BA853301C8C1D49A7 /* SyncBar.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SyncBar.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		26911C812C624464D71B0856 /* FileProviderDumpParserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileProviderDumpParserTests.swift; sourceTree = "<group>"; };
+		27BA9A4EF38D32E8097322F7 /* StatusTextParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusTextParser.swift; sourceTree = "<group>"; };
+		52EEFC9321F866AE3301A5DB /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		56FB8202BDD9AC09A4C86796 /* MenuView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuView.swift; sourceTree = "<group>"; };
+		9A7F70D8F8CF56A111CC47D8 /* idle-nextcloud.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = "idle-nextcloud.txt"; sourceTree = "<group>"; };
+		A8A4D25E7B7ED7CF6260C6C6 /* Account.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Account.swift; sourceTree = "<group>"; };
+		AEF16E5B2717886E80389D5E /* Preferences.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Preferences.swift; sourceTree = "<group>"; };
+		B6D45507BC8FF64EF7304781 /* AccountDiscovery.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountDiscovery.swift; sourceTree = "<group>"; };
+		B8C6741663170B08AAC2E97F /* DumpRunner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DumpRunner.swift; sourceTree = "<group>"; };
+		BE21457C8AA4D32EF0224EAF /* SyncBarTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SyncBarTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		BF44DE9502DA4ACFC862B803 /* StatusItemController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusItemController.swift; sourceTree = "<group>"; };
+		C8A7D8CD5B99DA6BF2BB96A6 /* AppModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppModel.swift; sourceTree = "<group>"; };
+		CDFC5D12EDFF775F9FAC6334 /* StateCombiner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StateCombiner.swift; sourceTree = "<group>"; };
+		D8D021D2B49587BDC5B681BA /* SyncBarApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncBarApp.swift; sourceTree = "<group>"; };
+		DA6D6FD24D163BB4AD99DD48 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		E85B23E26DC21AD3E4BCB013 /* OneDriveInstances.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OneDriveInstances.swift; sourceTree = "<group>"; };
+		FA56718434CD39BE924DABC4 /* MenuBarItems.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarItems.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		1F5DF744B9E2FE9349CEB319 /* Fixtures */ = {
+			isa = PBXGroup;
+			children = (
+				9A7F70D8F8CF56A111CC47D8 /* idle-nextcloud.txt */,
+			);
+			path = Fixtures;
+			sourceTree = "<group>";
+		};
+		221557DB049A92DFE8558ACD /* SyncBarTests */ = {
+			isa = PBXGroup;
+			children = (
+				26911C812C624464D71B0856 /* FileProviderDumpParserTests.swift */,
+				1F5DF744B9E2FE9349CEB319 /* Fixtures */,
+			);
+			path = SyncBarTests;
+			sourceTree = "<group>";
+		};
+		461B02E1B7D54B5CF1CD2C56 /* UI */ = {
+			isa = PBXGroup;
+			children = (
+				56FB8202BDD9AC09A4C86796 /* MenuView.swift */,
+				52EEFC9321F866AE3301A5DB /* SettingsView.swift */,
+				BF44DE9502DA4ACFC862B803 /* StatusItemController.swift */,
+			);
+			path = UI;
+			sourceTree = "<group>";
+		};
+		5861CE1C644272B696F25979 /* Core */ = {
+			isa = PBXGroup;
+			children = (
+				A8A4D25E7B7ED7CF6260C6C6 /* Account.swift */,
+				B6D45507BC8FF64EF7304781 /* AccountDiscovery.swift */,
+				19068111964E19ADE570175A /* FileProviderDump.swift */,
+				E85B23E26DC21AD3E4BCB013 /* OneDriveInstances.swift */,
+				CDFC5D12EDFF775F9FAC6334 /* StateCombiner.swift */,
+				27BA9A4EF38D32E8097322F7 /* StatusTextParser.swift */,
+				13E85BD7A9186E67B5E7B4FF /* SyncState.swift */,
+			);
+			path = Core;
+			sourceTree = "<group>";
+		};
+		7985C217DA0C45CD038EA0FF /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				21DAE03BA853301C8C1D49A7 /* SyncBar.app */,
+				BE21457C8AA4D32EF0224EAF /* SyncBarTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		7FD0C21D5F791F0E9C3BA23A = {
+			isa = PBXGroup;
+			children = (
+				B41B7D9C71B615F439731AC0 /* SyncBar */,
+				221557DB049A92DFE8558ACD /* SyncBarTests */,
+				7985C217DA0C45CD038EA0FF /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		A68C9472AEF88BE85C242FDB /* Status */ = {
+			isa = PBXGroup;
+			children = (
+				B8C6741663170B08AAC2E97F /* DumpRunner.swift */,
+				FA56718434CD39BE924DABC4 /* MenuBarItems.swift */,
+			);
+			path = Status;
+			sourceTree = "<group>";
+		};
+		B41B7D9C71B615F439731AC0 /* SyncBar */ = {
+			isa = PBXGroup;
+			children = (
+				DA6D6FD24D163BB4AD99DD48 /* Info.plist */,
+				FDA0743A08146D169C16203B /* App */,
+				5861CE1C644272B696F25979 /* Core */,
+				A68C9472AEF88BE85C242FDB /* Status */,
+				461B02E1B7D54B5CF1CD2C56 /* UI */,
+			);
+			path = SyncBar;
+			sourceTree = "<group>";
+		};
+		FDA0743A08146D169C16203B /* App */ = {
+			isa = PBXGroup;
+			children = (
+				C8A7D8CD5B99DA6BF2BB96A6 /* AppModel.swift */,
+				AEF16E5B2717886E80389D5E /* Preferences.swift */,
+				D8D021D2B49587BDC5B681BA /* SyncBarApp.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		04919D39F5C90B60C332D8FF /* SyncBar */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E321FCFDC85AB88352BCC864 /* Build configuration list for PBXNativeTarget "SyncBar" */;
+			buildPhases = (
+				4EF9F1E03CB29B8B342E2B7E /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = SyncBar;
+			packageProductDependencies = (
+			);
+			productName = SyncBar;
+			productReference = 21DAE03BA853301C8C1D49A7 /* SyncBar.app */;
+			productType = "com.apple.product-type.application";
+		};
+		86FFFA733AF90FC2E16317C1 /* SyncBarTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 93ABD3D9B0CEFB8EB077263B /* Build configuration list for PBXNativeTarget "SyncBarTests" */;
+			buildPhases = (
+				308FB96BB9A998DBD4BC5A61 /* Sources */,
+				EE30F480FA7249DDC600D753 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				5A01FBD113F515543EB9F068 /* PBXTargetDependency */,
+			);
+			name = SyncBarTests;
+			packageProductDependencies = (
+			);
+			productName = SyncBarTests;
+			productReference = BE21457C8AA4D32EF0224EAF /* SyncBarTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		F6B0015529074DF29F12918E /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+					04919D39F5C90B60C332D8FF = {
+						DevelopmentTeam = AUF37YGA3G;
+						ProvisioningStyle = Manual;
+					};
+					86FFFA733AF90FC2E16317C1 = {
+						DevelopmentTeam = AUF37YGA3G;
+						ProvisioningStyle = Manual;
+					};
+				};
+			};
+			buildConfigurationList = 6460F3A83E172CA98C03A7A4 /* Build configuration list for PBXProject "SyncBar" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = 7FD0C21D5F791F0E9C3BA23A;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 7985C217DA0C45CD038EA0FF /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				04919D39F5C90B60C332D8FF /* SyncBar */,
+				86FFFA733AF90FC2E16317C1 /* SyncBarTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		EE30F480FA7249DDC600D753 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C83562C3BAA21A9CC2BCC605 /* idle-nextcloud.txt in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		308FB96BB9A998DBD4BC5A61 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E3C29B035578BC360A64973F /* FileProviderDumpParserTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4EF9F1E03CB29B8B342E2B7E /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A6E4399116AC9872E1651748 /* Account.swift in Sources */,
+				EEDCE82993F832DB099BB3FB /* AccountDiscovery.swift in Sources */,
+				6D62BB5D04AAA8619E8D4FF4 /* AppModel.swift in Sources */,
+				1621B68CBB0F223C3025A74B /* DumpRunner.swift in Sources */,
+				2A01408396A5ED162DA6A413 /* FileProviderDump.swift in Sources */,
+				35B0B5BFE6C7DD5D5C2220F6 /* MenuBarItems.swift in Sources */,
+				E6D840FA16EF7219CA25C03D /* MenuView.swift in Sources */,
+				3A401031934A588551A78479 /* OneDriveInstances.swift in Sources */,
+				F53F21310606A31A3B4597F2 /* Preferences.swift in Sources */,
+				0782F4F647FBDBAF1429FF7A /* SettingsView.swift in Sources */,
+				0E7DD5FE9818623E6E845355 /* StateCombiner.swift in Sources */,
+				85B6F0D29217C83A820EE87A /* StatusItemController.swift in Sources */,
+				64CFD32B36765DD64BABD272 /* StatusTextParser.swift in Sources */,
+				422EF0B190E796C8288017FB /* SyncBarApp.swift in Sources */,
+				B5FEA37AC2D83CBC1B9AD51B /* SyncState.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		5A01FBD113F515543EB9F068 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 04919D39F5C90B60C332D8FF /* SyncBar */;
+			targetProxy = 83DE9CCFF4F9BA6BF42CE202 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		001ACCFB4B07F2C7E7A287E7 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				COMBINE_HIDPI_IMAGES = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.morrisseymedia.syncbar.tests;
+				SDKROOT = macosx;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/SyncBar.app/Contents/MacOS/SyncBar";
+			};
+			name = Release;
+		};
+		129A069E4F038B9D2FD1CEA3 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				COMBINE_HIDPI_IMAGES = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.morrisseymedia.syncbar.tests;
+				SDKROOT = macosx;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/SyncBar.app/Contents/MacOS/SyncBar";
+			};
+			name = Debug;
+		};
+		38DCABFEF56B8EC031D558FE /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Manual;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = AUF37YGA3G;
+				ENABLE_APP_SANDBOX = NO;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 27.2;
+				MARKETING_VERSION = 0.1.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 6.0;
+			};
+			name = Release;
+		};
+		4770FD3F8B85FDC669DB2108 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				COMBINE_HIDPI_IMAGES = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = SyncBar/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.morrisseymedia.syncbar;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		6B02B8A9AA39AFE5EAF66544 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				COMBINE_HIDPI_IMAGES = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = SyncBar/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.morrisseymedia.syncbar;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		934F4E594CBC10D348C62B77 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Manual;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = AUF37YGA3G;
+				ENABLE_APP_SANDBOX = NO;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 27.2;
+				MARKETING_VERSION = 0.1.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 6.0;
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		6460F3A83E172CA98C03A7A4 /* Build configuration list for PBXProject "SyncBar" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				934F4E594CBC10D348C62B77 /* Debug */,
+				38DCABFEF56B8EC031D558FE /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		93ABD3D9B0CEFB8EB077263B /* Build configuration list for PBXNativeTarget "SyncBarTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				129A069E4F038B9D2FD1CEA3 /* Debug */,
+				001ACCFB4B07F2C7E7A287E7 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		E321FCFDC85AB88352BCC864 /* Build configuration list for PBXNativeTarget "SyncBar" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4770FD3F8B85FDC669DB2108 /* Debug */,
+				6B02B8A9AA39AFE5EAF66544 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = F6B0015529074DF29F12918E /* Project object */;
+}

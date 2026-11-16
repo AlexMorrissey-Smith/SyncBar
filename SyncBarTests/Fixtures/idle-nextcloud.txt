@@ -1,0 +1,164 @@
+Date/Time:         2026-11-16 06:11:07 +0000, (816502267.200648)
+OS Version:        26C5035r
+FP Version:        4838.60.42
+uid:               501
+
+
+6 providers, filtered by 'com.nextcloud.desktopclient.FileProviderExt/e{34}8'
+=====================================================
+com.nextcloud.desktopclient.FileProviderExt
+=====================================================
+  + version: none
+  + available system wide: 1
+  + supports enumeration: 1
+  + supports FPFS: 1
+  + read-only: 0
+  + extension storage URLs: (1)
+    - <GroupContainers>/NKUJUXUJ3B.com.nextcloud.desktopclient/F{19}e
+  + file coordination purpose ID: com.nextcloud.desktopclient.FileProviderExt
+  + display name: Nextcloud
+  + bundle URL: /Applications/Nextcloud.app/Contents/PlugIns/FileProviderExt.appex
+  + containing bundle identifier: com.nextcloud.desktopclient
+  + persona: FEEDEEEE-DDDD-CCCC-BBBB-0000000001F5
+  + document group name: NKUJUXUJ3B.com.nextcloud.desktopclient
+  + supported file types: none
+  + uses unique item identifiers across devices: 0
+  + applies changes atomically: 0
+  + supports failing upload on conflict: 1
+  + disallowed by MDM: 0
+  + push topics (development, opportunistic): (0)
+  + push topics (production): (0)
+  + push topics (production, opportunistic): (0)
+  + push topics (development): (0)
+
+-----------------------------------------------------
+domain: e{34}8 (c{43}h)
+-----------------------------------------------------
+ observing:{process [53153], process [668], process [66046], process [81191], process [41204]}; grace period timer not running
+[33m alive (66069) via ExtensionKit[39m for:
+     service com.nextcloud.desktopclient.ClientCommunicationService for Nextcloud[66046]
+     enumerator of s:com.nextcloud.desktopclient.FileProviderExt/e{34}8/trash, al:n for pid=41204 name=Finder path=/System/Library/CoreServices/Finder.app/Contents/MacOS/Finder isPOSIX=0
+     service com.nextcloud.desktopclient.ClientCommunicationService for Nextcloud[66046]
+     service com.nextcloud.desktopclient.ClientCommunicationService for Nextcloud[66046]
+[33m alive[39m due to XPC calls
+     startOperation:toFetchThumbnailsWithDictionary:size:completionHandler:: no timeout, no progress, no scheduler
+     startOperation:toFetchThumbnailsWithDictionary:size:completionHandler:: no timeout, no progress, no scheduler
+     startOperation:toFetchThumbnailsWithDictionary:size:completionHandler:: no timeout, no progress, no scheduler
+     startOperation:toFetchThumbnailsWithDictionary:size:completionHandler:: no timeout, no progress, no scheduler
+     startOperation:toFetchThumbnailsWithDictionary:size:completionHandler:: no timeout, no progress, no scheduler
+     startOperation:toFetchThumbnailsWithDictionary:size:completionHandler:: no timeout, no progress, no scheduler
+     startOperation:toFetchThumbnailsWithDictionary:size:completionHandler:: no timeout, no progress, no scheduler
+     startOperation:toFetchThumbnailsWithDictionary:size:completionHandler:: no timeout, no progress, no scheduler
+     startOperation:toFetchThumbnailsWithDictionary:size:completionHandler:: no timeout, no progress, no scheduler
+     startOperation:toFetchThumbnailsWithDictionary:size:completionHandler:: no timeout, no progress, no scheduler
+     startOperation:toFetchThumbnailsWithDictionary:size:completionHandler:: no timeout, no progress, no scheduler
+     startOperation:toFetchThumbnailsWithDictionary:size:completionHandler:: no timeout, no progress, no scheduler
+     startOperation:toFetchThumbnailsWithDictionary:size:completionHandler:: no timeout, no progress, no scheduler
+     startOperation:toFetchThumbnailsWithDictionary:size:completionHandler:: no timeout, no progress, no scheduler
+     startOperation:toFetchThumbnailsWithDictionary:size:completionHandler:: no timeout, no progress, no scheduler
+     startOperation:toFetchThumbnailsWithDictionary:size:completionHandler:: no timeout, no progress, no scheduler
+     startOperation:toFetchThumbnailsWithDictionary:size:completionHandler:: no timeout, no progress, no scheduler
+     startOperation:toFetchThumbnailsWithDictionary:size:completionHandler:: no timeout, no progress, no scheduler
+     startOperation:toFetchThumbnailsWithDictionary:size:completionHandler:: no timeout, no progress, no scheduler
+     startOperation:toFetchThumbnailsWithDictionary:size:completionHandler:: no timeout, no progress, no scheduler
+     startOperation:toFetchThumbnailsWithDictionary:size:completionHandler:: no timeout, no progress, no scheduler
+     startOperation:toFetchThumbnailsWithDictionary:size:completionHandler:: no timeout, no progress, no scheduler
+     startOperation:toFetchThumbnailsWithDictionary:size:completionHandler:: no timeout, no progress, no scheduler
+     startOperation:toFetchThumbnailsWithDictionary:size:completionHandler:: no timeout, no progress, no scheduler
+     startOperation:toFetchThumbnailsWithDictionary:size:completionHandler:: no timeout, no progress, no scheduler
+     startOperation:toFetchThumbnailsWithDictionary:size:completionHandler:: no timeout, no progress, no scheduler
+     startOperation:toFetchThumbnailsWithDictionary:size:completionHandler:: no timeout, no progress, no scheduler
+     startOperation:toFetchThumbnailsWithDictionary:size:completionHandler:: no timeout, no progress, no scheduler
+     startOperation:toFetchThumbnailsWithDictionary:size:completionHandler:: no timeout, no progress, no scheduler
+     startOperation:toFetchThumbnailsWithDictionary:size:completionHandler:: no timeout, no progress, no scheduler
+     startOperation:toFetchThumbnailsWithDictionary:size:completionHandler:: no timeout, no progress, no scheduler
+     startOperation:toFetchThumbnailsWithDictionary:size:completionHandler:: no timeout, no progress, no scheduler
+     startOperation:toFetchThumbnailsWithDictionary:size:completionHandler:: no timeout, no progress, no scheduler
+     startOperation:toFetchThumbnailsWithDictionary:size:completionHandler:: no timeout, no progress, no scheduler
+     startOperation:toFetchThumbnailsWithDictionary:size:completionHandler:: no timeout, no progress, no scheduler
+     startOperation:toFetchThumbnailsWithDictionary:size:completionHandler:: no timeout, no progress, no scheduler
+     startOperation:toFetchThumbnailsWithDictionary:size:completionHandler:: no timeout, no progress, no scheduler
+     startOperation:toFetchThumbnailsWithDictionary:size:completionHandler:: no timeout, no progress, no scheduler
+     startOperation:toFetchThumbnailsWithDictionary:size:completionHandler:: no timeout, no progress, no scheduler
+     startOperation:toFetchThumbnailsWithDictionary:size:completionHandler:: no timeout, no progress, no scheduler
+     startOperation:toFetchThumbnailsWithDictionary:size:completionHandler:: no timeout, no progress, no scheduler
+     startOperation:toFetchThumbnailsWithDictionary:size:completionHandler:: no timeout, no progress, no scheduler
+     startOperation:toFetchThumbnailsWithDictionary:size:completionHandler:: no timeout, no progress, no scheduler
+     startOperation:toFetchThumbnailsWithDictionary:size:completionHandler:: no timeout, no progress, no scheduler
+     startOperation:toFetchThumbnailsWithDictionary:size:completionHandler:: no timeout, no progress, no scheduler
+     startOperation:toFetchThumbnailsWithDictionary:size:completionHandler:: no timeout, no progress, no scheduler
+     startOperation:toFetchThumbnailsWithDictionary:size:completionHandler:: no timeout, no progress, no scheduler
+     startOperation:toFetchThumbnailsWithDictionary:size:completionHandler:: no timeout, no progress, no scheduler
+     startOperation:toFetchThumbnailsWithDictionary:size:completionHandler:: no timeout, no progress, no scheduler
+     startOperation:toFetchThumbnailsWithDictionary:size:completionHandler:: no timeout, no progress, no scheduler
+     startOperation:toFetchThumbnailsWithDictionary:size:completionHandler:: no timeout, no progress, no scheduler
+     startOperation:toFetchThumbnailsWithDictionary:size:completionHandler:: no timeout, no progress, no scheduler
+     startOperation:toFetchThumbnailsWithDictionary:size:completionHandler:: no timeout, no progress, no scheduler
+     startOperation:toFetchThumbnailsWithDictionary:size:completionHandler:: no timeout, no progress, no scheduler
+     startOperation:toFetchThumbnailsWithDictionary:size:completionHandler:: no timeout, no progress, no scheduler
+     startOperation:toFetchThumbnailsWithDictionary:size:completionHandler:: no timeout, no progress, no scheduler
+     startOperation:toFetchThumbnailsWithDictionary:size:completionHandler:: no timeout, no progress, no scheduler
+     startOperation:toFetchThumbnailsWithDictionary:size:completionHandler:: no timeout, no progress, no scheduler
+     startOperation:toFetchThumbnailsWithDictionary:size:completionHandler:: no timeout, no progress, no scheduler
+     startOperation:toFetchThumbnailsWithDictionary:size:completionHandler:: no timeout, no progress, no scheduler
+     startOperation:toFetchThumbnailsWithDictionary:size:completionHandler:: no timeout, no progress, no scheduler
+     startOperation:toFetchThumbnailsWithDictionary:size:completionHandler:: no timeout, no progress, no scheduler
+     startOperation:toFetchThumbnailsWithDictionary:size:completionHandler:: no timeout, no progress, no scheduler
+     startOperation:toFetchThumbnailsWithDictionary:size:completionHandler:: no timeout, no progress, no scheduler
+     startOperation:toFetchThumbnailsWithDictionary:size:completionHandler:: no timeout, no progress, no scheduler
+     startOperation:toFetchThumbnailsWithDictionary:size:completionHandler:: no timeout, no progress, no scheduler
+     startOperation:toFetchThumbnailsWithDictionary:size:completionHandler:: no timeout, no progress, no scheduler
+     startOperation:toFetchThumbnailsWithDictionary:size:completionHandler:: no timeout, no progress, no scheduler
+  + features: repl,syncTrash,
+  + supported KF: 
+  + replicated KF: 
+  + root: <FPFS>/N{26}t.net-Example
+  + FPDDomain instance: <FPDDomain:0x79e10b1cc0>
+      - default backend: <FileProviderDaemon.FPDDomainFPFSBackend:0x79e1188800>
+      - extension backend: <FPDDomainExtensionBackend:0x79e121dfe0>
+      - deactivated backend: <(null):0x0>
+      - volume: <FPDVolume:0x79e0ca8120 role:home dev:16777234 uuid:B7...2D '/S{4}m/V{5}s/D{2}a'>
+  + persona: FEEDEEEE-DDDD-CCCC-BBBB-0000000001F5
+  + userInfo: 0 keys
+  + indexer:
+domain: com.nextcloud.desktopclient.FileProviderExt/e{34}8
+      spDomainID:     1F46DA00-A078-4B5C-A1F6-1CCA1A1D0325
+      scheduler:      <l:com.apple.fileprovider.indexing 🛏  registration:<from:2026-11-16 06:10:06 +0000 count:389 to:2026-11-16 06:11:06 +0000> trigger:<from:2026-11-16 06:10:06 +0000 to:2026-11-16 05:59:48 +0000> usage:2026-11-16 06:10:06 +0000>
+      enabled:        yes
+      indexing:       no
+      needs-auth:     no
+      needs-indexing: no
+      + telemetry info:
+         count of files requested for redonation in the last day: 0
+      errors:         0
+      batch-indexed (since last startup): 618
+      spotlightIndexer:
+      change token: {length = 309, bytes = 0x01980098 0062706c 69737430 30d30102 ... 00000000 00000071 }
+      operation: (
+)
+      description: <FPSpotlightIndexer:com.apple.FileProvider/com.nextcloud.desktopclient.FileProviderExt/1F46DA00-A078-4B5C-A1F6-1CCA1A1D0325 0x79e0cee880  [0 ops]>
+      eligibleForEmbeddings: true
+      anchor: <37E99718-9E07-4D6D-A605-3346AA8298CF update:1794788535395649024 deletions:1794534323312675072>
+      donation-status-backfill-in-progress: false
+      pending-indexable-count: 0 (updates: 0, undownloaded: 0, overlap: 0, deletions: 0)
+      total-indexable-count: 577994 (donatable: 577994, deletions: 0)
+      + spotlight donation progress: <error: NSError: CSSearchQueryErrorDomain -2001 "The operation couldn’t be completed. (CSSearchQueryErrorDomain error -2001.)" UserInfo={CSDonationProgressFailedIndexes=(
+    "/Users/example/Pictures/Photos Library.photoslibrary/database/search/Spotlight"
+)} }>
+  + active enumerators:
+    <fpfs:trash requestedBy:41204 hasPresenter:no>
+sync engine state:
+    + upload progress: <gprogress:NSProgressFileOperationKindUploading url:<FPFS>/N{26}t.net-Example>
+    + download progress: <gprogress:NSProgressFileOperationKindDownloading url:<FPFS>/N{26}t.net-Example>
+    + database: version=v13.6.r202608311200 UUID=37E99718-9E07-4D6D-A605-3346AA8298CF
+    + FSEvent: UUID=F3FE5513-1217-4AD3-B1E7-1DEAC137E3B9 StreamID=1642103596
+    + FP anchor: <page:21800 anchor:35.0.3|2026-11-06T23:33:14Z>
+    + domain version: 0
+    + features: evict_packages|mark_directories_as_locked
+    + scheduling state: running
+    + error generation: 35
+    + disk import: no
+    + stream reset: no
+    + refresh speculative policy: no
+    + directory manifest: not-loaded
+    + database history:

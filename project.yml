@@ -1,0 +1,57 @@
+name: SyncBar
+options:
+  bundleIdPrefix: com.morrisseymedia
+  deploymentTarget:
+    macOS: "27.2"
+  createIntermediateGroups: true
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    MACOSX_DEPLOYMENT_TARGET: "27.2"
+    DEVELOPMENT_TEAM: AUF37YGA3G
+    CODE_SIGN_STYLE: Manual
+    CODE_SIGN_IDENTITY: "Apple Development"
+    ENABLE_HARDENED_RUNTIME: YES
+    ENABLE_APP_SANDBOX: NO
+    MARKETING_VERSION: "0.1.0"
+    CURRENT_PROJECT_VERSION: "1"
+targets:
+  SyncBar:
+    type: application
+    platform: macOS
+    sources: [SyncBar]
+    info:
+      path: SyncBar/Info.plist
+      properties:
+        LSUIElement: true
+        CFBundleDisplayName: SyncBar
+        NSHumanReadableCopyright: "Copyright © 2026. MIT License."
+        LSApplicationCategoryType: public.app-category.utilities
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.morrisseymedia.syncbar
+        GENERATE_INFOPLIST_FILE: NO
+  SyncBarTests:
+    type: bundle.unit-test
+    platform: macOS
+    sources:
+      - path: SyncBarTests
+        excludes: [Fixtures]
+      - path: SyncBarTests/Fixtures
+        buildPhase: resources
+    dependencies:
+      - target: SyncBar
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.morrisseymedia.syncbar.tests
+        GENERATE_INFOPLIST_FILE: YES
+        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/SyncBar.app/Contents/MacOS/SyncBar"
+        BUNDLE_LOADER: "$(TEST_HOST)"
+schemes:
+  SyncBar:
+    build:
+      targets:
+        SyncBar: all
+        SyncBarTests: [test]
+    test:
+      targets: [SyncBarTests]
